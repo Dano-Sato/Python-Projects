@@ -50,7 +50,7 @@ class Updater(QThread):
     def run(self):
         while True:
             self.update_signal.emit()
-            time.sleep(30)
+            time.sleep(1/30)
 
 
 #Genesis class is Base class of window. You can define your own windows as its base as Genesis.
@@ -65,16 +65,16 @@ class Genesis(QWidget):
         self.initUI()
         self.update_thread = Updater()
         self.update_thread.update_signal.connect(self.update)
-
+        self.update_thread.start()
         ###Paint Setting
         self.painter = QPainter()
         self.color = 0xFFFFFF
         self.font = ['MS Gothic',20]
+        
     def paintEvent(self, event):
 
         self.painter.begin(self)
         self.drawEvent(event) 
-        self.update()        
         self.painter.end()
     
     ## Will Be Overloaded
@@ -84,14 +84,10 @@ class Genesis(QWidget):
         return
     
     ## Painting Functions 
-    def drawBunsho(self,x,y,s):
+    def drawString(self,x,y,s):
         self.painter.setPen(QColor(self.color))
         self.painter.setFont(QFont(self.font[0],self.font[1]))
         self.painter.drawText(x,y, s)
-    def drawYomigana(self,x,y,s): ## Ima working-chu
-        self.painter.setPen(QColor(self.color))
-        self.painter.setFont(QFont(self.font[0],self.font[1]))
-        self.painter.drawText(x,y, s)        
     def drawSquare(self, x, y, size):
         
         color = QColor(self.color)

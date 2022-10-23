@@ -6,9 +6,9 @@ BrickTitleFont.setBold(True)
 class Brick(QGraphicsRectItem):
     def __init__(self):
         super().__init__()
-        self.title = QGraphicsTextItem("Title")
+        self.title = QGraphicsTextItem('')
         self.title.setFont(BrickTitleFont)
-        self.text = QGraphicsTextItem("testetsettsetstsetsetstetstststs")
+        self.text = QGraphicsTextItem('')
         self.text.setTextWidth(130)
         self.setBrush(QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))) # 배경색 정함
         self.setPen(QPen(Qt.white,1))
@@ -29,11 +29,26 @@ class Brick(QGraphicsRectItem):
         scn.removeItem(self.text)
         scn.removeItem(self.title)
 
+
+class Board(QGraphicsRectItem):
+    def __init__(self,color):
+        self.setBrush(color)
+
+class MWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.showMaximized()
+        self.setWindowTitle("LayBricks")
+        self.toolbar = self.addToolBar('toolbar')
+        self.resetTimeEdit = QTimeEdit() # 매일 루틴 리셋 시간을 지정하는 Editor
+        self.resetTimeEdit.setUpdatesEnabled(True)
+        self.toolbar.addWidget(QLabel('Reset at'))
+        self.toolbar.addWidget(self.resetTimeEdit)
+
+
 class App(Genesis):
     def initUI(self):
 
-        self.resize(1200,800)
-        self.setWindowTitle("LayBricks")
         b = Brick()
         b.setRect(10,10,150,150)
         scene = QGraphicsScene()
@@ -45,9 +60,9 @@ class App(Genesis):
         self.view.setScene(scene)
         self.view.viewport().installEventFilter(self)
 
-        self.layout = XVLayout()
-        self.layout.addWidget(self.view)
+        self.layout = XHLayout(self.view)
         self.setLayout(self.layout)
+
         
         self.draggedObject = None
 
@@ -60,14 +75,23 @@ class App(Genesis):
             elif event.type() == QEvent.MouseButtonRelease:
                 #Mouse Release Event
                 print('mouse release event = ', event.pos())
+                self.draggedObject = None
 
         return QWidget.eventFilter(self, obj, event)
+
+    def update(self):
+        super().update()
+        #Brick들을 정렬, Dragging되는 오브젝트 처리
+
+
 
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    mwindow = App()
+    mwindow = MWindow()
+    Appli = App()
+    mwindow.setCentralWidget(Appli)
     mwindow.show()
     
     app.exec_()

@@ -6,16 +6,19 @@ BrickTitleFont.setBold(True)
 class Brick(QGraphicsRectItem):
     def __init__(self):
         super().__init__()
-        self.title = QGraphicsTextItem('')
+        self.title = QGraphicsTextItem('Title')
         self.title.setFont(BrickTitleFont)
-        self.text = QGraphicsTextItem('')
+        self.text = QGraphicsTextItem('text')
         self.text.setTextWidth(130)
         self.setBrush(QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))) # 배경색 정함
         self.setPen(QPen(Qt.white,1))
     def setRect(self,x,y,w,h):
         super().setRect(x,y,w,h)
-        self.title.setPos(x+5,y+5)
-        self.text.setPos(x+10,y+30)
+        self.setPos(x,y)
+    def setPos(self,x,y):
+        super().setPos(x,y)
+        self.title.setPos(x+10,y+10)
+        self.text.setPos(x+15,y+35)
     def setTitle(str):
         self.title.setPlainText(str)
     def setText(str):
@@ -33,6 +36,7 @@ class Brick(QGraphicsRectItem):
 class Board(QGraphicsRectItem):
     def __init__(self,color):
         self.setBrush(color)
+        self.Bricks = []
 
 class MWindow(QMainWindow):
     def __init__(self):
@@ -49,16 +53,23 @@ class MWindow(QMainWindow):
 class App(Genesis):
     def initUI(self):
 
-        b = Brick()
-        b.setRect(10,10,150,150)
-        scene = QGraphicsScene()
-        b.addToScene(scene)
+        self.b = Brick()
+        self.b.setRect(10,10,150,150)
+
+
+        self.scene = QGraphicsScene()
+        self.b.addToScene(self.scene)
+
+
         self.Todo = []
         self.Ongoing = []
         self.Done = []
         self.view = QGraphicsView()
-        self.view.setScene(scene)
+        self.view.setScene(self.scene)
         self.view.viewport().installEventFilter(self)
+        self.view.setAlignment(Qt.AlignLeft|Qt.AlignTop)
+        self.editorFrame = QFrame()
+        self.textEdit = QPlainTextEdit()
 
         self.layout = XHLayout(self.view)
         self.setLayout(self.layout)
@@ -72,6 +83,8 @@ class App(Genesis):
                 if event.buttons() & Qt.LeftButton:
                     #Mouse Press Event 
                     print('mouse press event = ', event.pos())
+                    self.draggedObject=self.b
+                    
             elif event.type() == QEvent.MouseButtonRelease:
                 #Mouse Release Event
                 print('mouse release event = ', event.pos())
@@ -81,6 +94,9 @@ class App(Genesis):
 
     def update(self):
         super().update()
+        if self.draggedObject != None:
+            self.draggedObject.setPos(self.getCursorPos().x(),self.getCursorPos().y())
+
         #Brick들을 정렬, Dragging되는 오브젝트 처리
 
 

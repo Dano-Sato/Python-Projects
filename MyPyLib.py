@@ -50,7 +50,7 @@ class Updater(QThread):
     def run(self):
         while True:
             self.update_signal.emit()
-            time.sleep(1/30)
+            time.sleep(1/60)
 
 
 #Genesis class is Base class of window. You can define your own windows as its base as Genesis.
@@ -82,6 +82,9 @@ class Genesis(QWidget):
         return
     def drawEvent(self, event):
         return
+
+    def getCursorPos(self):
+            return self.mapFromGlobal(QCursor.pos())
     
     ## Painting Functions 
     def drawString(self,x,y,s):

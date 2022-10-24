@@ -157,7 +157,6 @@ def XVLayout(*components):
 def XHLayout(*components):
     return _XBoxLayout('H',components)
     
-
 def _XBoxLayout(type, components):
     if type=='V':
         layout = QVBoxLayout()
@@ -175,6 +174,23 @@ def _XBoxLayout(type, components):
         except:
             layout.addLayout(component)
     return layout   
+
+
+
+class XGraphicsRectItem(QGraphicsRectItem):
+    def __init__(self):
+        super().__init__()
+    def setRect(self,x,y,w,h):
+        super().setRect(0,0,w,h)
+        self.setPos(x,y)
+    def rect(self):
+        rect = super().rect()
+        rect.moveTo(self.pos().x(),self.pos().y())
+        if self.parentItem() != None:
+            rect.moveTo(self.pos().x()+self.parentItem().rect().x(),self.pos().y()+self.parentItem().rect().y())
+        return rect
+
+
 
 
 ##Horizontal Table with header labels

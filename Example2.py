@@ -90,7 +90,7 @@ class MWindow(QMainWindow):
 class App(Genesis):
 
     def textUpdate(self):
-        texts = self.textEdit.toPlainText().split('\n')
+        texts = self.textEdit.toPlainText().replace('\t','    ').split('\n')
         #Brick Update
         if self.currentObject != None:
             if len(texts)>0:
@@ -104,6 +104,13 @@ class App(Genesis):
             else:
                 self.currentObject.text.setPlainText('')
             self.currentObject.heightUpdate()
+            cursor = self.textEdit.textCursor()
+            if cursor.blockNumber()==0:
+                self.textEdit.setCurrentCharFormat(self.titleFormat)
+            else:
+                self.textEdit.setCurrentCharFormat(self.textFormat)
+            self.prevBN = cursor.blockNumber()
+
         
     def initUI(self):
 
@@ -127,6 +134,14 @@ class App(Genesis):
         self.editorFrame = QFrame()
         self.textEdit = QPlainTextEdit()
         self.textEdit.textChanged.connect(self.textUpdate)
+        self.textEdit.setTabStopWidth(self.textEdit.fontMetrics().width(' ') * 4)        
+        self.titleFormat = QTextCharFormat()
+        self.prevBN = -1
+        TitleFont = QFont('Arial',22)
+        TitleFont.setBold(True)
+        self.titleFormat.setFont(TitleFont)
+        self.textFormat = QTextCharFormat()
+        self.textFormat.setFont(QFont('Arial',14))
         self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit))
         self.editorFrame.hide()
 
@@ -207,8 +222,15 @@ class App(Genesis):
                                 if self.editorFrame.isHidden():
                                     self.editorFrame.show()
                                 self.currentObject=brick
-                                str = brick.title.toPlainText()+'\n'+brick.text.toPlainText()
-                                self.textEdit.setPlainText(str)
+                               # str = brick.title.toPlainText()+'\n'+brick.text.toPlainText()
+                               # self.textEdit.setPlainText(str)
+                                title = brick.title.toPlainText()
+                                text = brick.text.toPlainText()
+                                self.textEdit.clear()
+                                self.textEdit.setCurrentCharFormat(self.titleFormat)
+                                self.textEdit.insertPlainText(title+'\n')
+                                self.textEdit.setCurrentCharFormat(self.textFormat)
+                                self.textEdit.insertPlainText(text)
                                 self.currentObject.setBrush(self.currentObject.color.lighter().lighter())
                                 self.currentObject.setPen(QPen(Qt.black,1))
 

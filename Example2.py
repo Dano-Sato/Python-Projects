@@ -11,22 +11,33 @@ class Brick(XGraphicsRectItem):
         self.title.setParentItem(self)
         self.text = QGraphicsTextItem('text')
         self.text.setParentItem(self)
-        self.text.setTextWidth(130)
-        self.setBrush(QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))) # 배경색 정함
+        self.color = QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))
+        self.setBrush(self.color) # 배경색 정함
         self.setPen(QPen(Qt.white,1))
     def setRect(self,x,y,w,h):
         super().setRect(0,0,w,h)
         self.title.setPos(5,5)
         self.text.setPos(10,30)
+        self.text.setTextWidth(self.rect().width()-20)
         self.setPos(x,y) # Coordinate를 망가뜨리지 않기 위해 이렇게 설계
     def setTitle(self,str):
         self.title.setPlainText(str)
     def setText(self,str):
         self.text.setPlainText(str)
+    def heightUpdate(self):
+        h1 = self.title.boundingRect().height()
+        h2 = self.text.boundingRect().height()
+        rect = self.rect()
+        rect.setHeight(h1+h2+10)
+        self.setRect(rect.x(),rect.y(),rect.width(),rect.height())
+
 
 
 class Board(XGraphicsRectItem):
     delta = 15
+    minimal_brick_height = 60
+
+    
     def __init__(self,color):
         super().__init__()
         self.setBrush(color)
@@ -59,7 +70,9 @@ class Board(XGraphicsRectItem):
 
     def addBrick(self,scene):
         b = Brick()
-        b.setRect(0,0,self.rect().width()-30,60)
+        b.setRect(0,0,self.rect().width()-30,self.minimal_brick_height)
+        b.heightUpdate()
+
         self.Bricks.append(b)
         self.update()
         scene.addItem(b)
@@ -74,15 +87,31 @@ class MWindow(QMainWindow):
         self.toolbar.addWidget(QLabel('Reset at'))
         self.toolbar.addWidget(self.resetTimeEdit)
 
-
 class App(Genesis):
+
+    def textUpdate(self):
+        texts = self.textEdit.toPlainText().split('\n')
+        #Brick Update
+        if self.currentObject != None:
+            if len(texts)>0:
+                head = texts[0]
+                self.currentObject.title.setPlainText(head)
+            else:
+                self.currentObject.title.setPlainText('')
+            if len(texts)>1:
+                text = '\n'.join(texts[1:])
+                self.currentObject.text.setPlainText(text)
+            else:
+                self.currentObject.text.setPlainText('')
+            self.currentObject.heightUpdate()
+        
     def initUI(self):
 
 
 
 
 
-
+        #QGraphicsView 구성
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(0,0,1200,800)
         self.view = QGraphicsView()
@@ -93,12 +122,18 @@ class App(Genesis):
         self.zero.setPos(0,0)
         self.scene.addItem(self.zero)
         self.view.setFocusPolicy(Qt.NoFocus)
+
+        #Brick Editor 구성 
         self.editorFrame = QFrame()
         self.textEdit = QPlainTextEdit()
+        self.textEdit.textChanged.connect(self.textUpdate)
+        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit))
+        self.editorFrame.hide()
 
 
-
-        self.layout = XHLayout(self.view)
+        self.layout = XHLayout(self.view,self.editorFrame)
+        self.layout.setStretchFactor(self.view,3)
+        self.layout.setStretchFactor(self.editorFrame,1)
         self.setLayout(self.layout)
 
 
@@ -139,6 +174,9 @@ class App(Genesis):
         '''
         
         self.draggedObject = None
+        self.draggingOffset = None
+        self.currentObject = None
+
 
     def eventFilter(self, obj, event):
         if obj is self.view.viewport():
@@ -161,8 +199,21 @@ class App(Genesis):
                             print(button.rect())
                             board.addBrick(self.scene)
                         for brick in board.Bricks:
-                            if brick.rect().contains(pos.x(),pos.y()):                
+                            if brick.rect().contains(pos.x(),pos.y()):
+                                if self.currentObject != None:
+                                    self.currentObject.setBrush(self.currentObject.color)
+                                    self.currentObject.setPen(QPen(Qt.white,1))
+
+                                if self.editorFrame.isHidden():
+                                    self.editorFrame.show()
+                                self.currentObject=brick
+                                str = brick.title.toPlainText()+'\n'+brick.text.toPlainText()
+                                self.textEdit.setPlainText(str)
+                                self.currentObject.setBrush(self.currentObject.color.lighter().lighter())
+                                self.currentObject.setPen(QPen(Qt.black,1))
+
                                 self.draggedObject=brick
+                                self.draggingOffset = [self.getCursorPos().x()-self.draggedObject.rect().x(),self.getCursorPos().y()-self.draggedObject.rect().y()]
 
                     
             elif event.type() == QEvent.MouseButtonRelease:
@@ -177,7 +228,7 @@ class App(Genesis):
         for board in [self.Todo,self.Ongoing,self.Done]:
             board.update()
         if self.draggedObject != None:
-            self.draggedObject.setPos(self.getCursorPos().x()-40,self.getCursorPos().y()-40)
+            self.draggedObject.setPos(self.getCursorPos().x()-self.draggingOffset[0],self.getCursorPos().y()-self.draggingOffset[1])
             for board in [self.Todo,self.Ongoing,self.Done]:
                 if self.draggedObject in board.Bricks:
                     currentBoard = board

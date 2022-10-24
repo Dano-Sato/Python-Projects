@@ -90,26 +90,8 @@ class MWindow(QMainWindow):
 class App(Genesis):
 
     def textUpdate(self):
-        texts = self.textEdit.toPlainText().replace('\t','    ').split('\n')
-        #Brick Update
-        if self.currentObject != None:
-            if len(texts)>0:
-                head = texts[0]
-                self.currentObject.title.setPlainText(head)
-            else:
-                self.currentObject.title.setPlainText('')
-            if len(texts)>1:
-                text = '\n'.join(texts[1:])
-                self.currentObject.text.setPlainText(text)
-            else:
-                self.currentObject.text.setPlainText('')
-            self.currentObject.heightUpdate()
-            cursor = self.textEdit.textCursor()
-            if cursor.blockNumber()==0:
-                self.textEdit.setCurrentCharFormat(self.titleFormat)
-            else:
-                self.textEdit.setCurrentCharFormat(self.textFormat)
-            self.prevBN = cursor.blockNumber()
+        if self.isTextChanged == False:
+            self.isTextChanged = True
 
         
     def initUI(self):
@@ -150,6 +132,7 @@ class App(Genesis):
         self.layout.setStretchFactor(self.view,3)
         self.layout.setStretchFactor(self.editorFrame,1)
         self.setLayout(self.layout)
+        self.isTextChanged = False
 
 
         #Board 객체들 구성
@@ -261,6 +244,29 @@ class App(Genesis):
                         board.Bricks.append(self.draggedObject)
                         currentBoard.Bricks.remove(self.draggedObject)
             #print('cursor(Scene)',)
+
+        if self.isTextChanged:
+            texts = self.textEdit.toPlainText().replace('\t','    ').split('\n')
+            #Brick Update
+            if self.currentObject != None:
+                if len(texts)>0:
+                    head = texts[0]
+                    self.currentObject.title.setPlainText(head)
+                else:
+                    self.currentObject.title.setPlainText('')
+                if len(texts)>1:
+                    text = '\n'.join(texts[1:])
+                    self.currentObject.text.setPlainText(text)
+                else:
+                    self.currentObject.text.setPlainText('')
+                self.currentObject.heightUpdate()
+                cursor = self.textEdit.textCursor()
+                if cursor.blockNumber()==0:
+                    self.textEdit.setCurrentCharFormat(self.titleFormat)
+                else:
+                    self.textEdit.setCurrentCharFormat(self.textFormat)
+                self.prevBN = cursor.blockNumber()
+
         
 
 

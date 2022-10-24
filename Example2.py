@@ -178,7 +178,15 @@ class App(Genesis):
             board.update()
         if self.draggedObject != None:
             self.draggedObject.setPos(self.getCursorPos().x()-40,self.getCursorPos().y()-40)
-            print('cursor:',self.getCursorPos())
+            for board in [self.Todo,self.Ongoing,self.Done]:
+                if self.draggedObject in board.Bricks:
+                    currentBoard = board
+                    break
+            for board in [self.Todo,self.Ongoing,self.Done]:            
+                if board.rect().contains(self.draggedObject.rect().center()):
+                    if currentBoard != board:
+                        board.Bricks.append(self.draggedObject)
+                        currentBoard.Bricks.remove(self.draggedObject)
             #print('cursor(Scene)',)
         
 

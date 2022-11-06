@@ -1,7 +1,13 @@
+#Code for Imac
+
 from MyPyLib import *
 
 BrickTitleFont = QFont('Arial',15)
 BrickTitleFont.setBold(True)
+
+home_path = os.path.expanduser('~')
+directoryName = home_path+"/DanoLib/LayBricks"
+
 
 class Brick(XGraphicsRectItem):
     def __init__(self):
@@ -17,7 +23,7 @@ class Brick(XGraphicsRectItem):
     def setRect(self,x,y,w,h):
         super().setRect(0,0,w,h)
         self.title.setPos(5,5)
-        self.text.setPos(10,30)
+        self.text.setPos(10,33)
         self.text.setTextWidth(self.rect().width()-20)
         self.setPos(x,y) # Coordinate를 망가뜨리지 않기 위해 이렇게 설계
     def setTitle(self,str):
@@ -49,20 +55,21 @@ class Board(XGraphicsRectItem):
         self.title.setParentItem(self)
         self.title.setFont(BrickTitleFont)
         self.addButtonLabel = QGraphicsTextItem("+ add Brick")
+        self.addButtonLabel.setFont(QFont('Arial',14))
         self.addButtonLabel.setParentItem(self.addButton)
 
     def setRect(self,x,y,w,h):
         super().setRect(0,0,w,h)
         self.addButtonLabel.setPos(50,8)
         self.addButton.setRect(w/3-20,h-60,200,40)
-        self.title.setPos(5,5)
+        self.title.setPos(20,15)
         self.setPos(x,y)
     def setTitle(self,str):
         self.title.setPlainText(str)
     def update(self): # 내부 브릭들의 위치를 정렬한다.
         self.Bricks.sort(key = lambda x:x.rect().y())
         temp = self.rect().y()
-        temp += 100
+        temp += 70
         for b in self.Bricks:
             b.setPos(self.rect().x()+self.delta,temp)
             temp+=b.rect().height()
@@ -184,20 +191,19 @@ class App(Genesis):
                     #print('mouse press event = ', event.pos())
 
                     offset = -16
+                    clickedBrick = False
+
                     for board in [self.Todo,self.Ongoing,self.Done]:
                         #버튼을 눌렀을 때 행동
                         button = board.addButton
                         pos = self.getCursorPos()
-                        print(pos)
-                        print(button.rect().topLeft())
                         pos.setX(pos.x()+offset)
                         pos.setY(pos.y()+offset)
                         if button.rect().contains(pos.x(),pos.y()):
-                            print('add brick')
-                            print(button.rect())
                             board.addBrick(self.scene)
                         for brick in board.Bricks:
                             if brick.rect().contains(pos.x(),pos.y()):
+                                clickedBrick = True
                                 if self.currentObject != None:
                                     self.currentObject.setBrush(self.currentObject.color)
                                     self.currentObject.setPen(QPen(Qt.white,1))
@@ -219,6 +225,14 @@ class App(Genesis):
 
                                 self.draggedObject=brick
                                 self.draggingOffset = [self.getCursorPos().x()-self.draggedObject.rect().x(),self.getCursorPos().y()-self.draggedObject.rect().y()]
+                    if not clickedBrick:
+                        if self.currentObject != None:
+                            self.currentObject.setBrush(self.currentObject.color)
+                            self.currentObject.setPen(QPen(Qt.white,1))
+                        self.currentObject = None
+                        self.textEdit.clear()
+                        self.editorFrame.hide()
+
 
                     
             elif event.type() == QEvent.MouseButtonRelease:
@@ -266,6 +280,7 @@ class App(Genesis):
                 else:
                     self.textEdit.setCurrentCharFormat(self.textFormat)
                 self.prevBN = cursor.blockNumber()
+                self.isTextChanged = False
 
         
 

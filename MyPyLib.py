@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui,QtCore,QtWidgets
-import sys, random,time, glob,pickle
+import sys, random,time, glob,pickle,os
 from Lib_PyHigh import PythonHighlighter
 
 

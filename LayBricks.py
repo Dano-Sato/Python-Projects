@@ -11,15 +11,17 @@ saveFilePath = (directoryName+'/currentData.bin')
 resetTime = "05:00:00"
 
 class Brick(XGraphicsRectItem):
-    def __init__(self):
+    def __init__(self,_title='Title',_text='text',_color=None):
         super().__init__()
-        self.title = QGraphicsTextItem('Title')
+        self.title = QGraphicsTextItem(_title)
         self.title.setFont(BrickTitleFont)
         self.title.setParentItem(self)
-        self.text = QGraphicsTextItem('text')
+        self.text = QGraphicsTextItem(_text)
         self.text.setFont(BrickTextFont)
         self.text.setParentItem(self)
-        self.color = QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))
+        if _color == None:
+            _color = QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))
+        self.color = _color
         self.setBrush(self.color) # 배경색 정함
         self.setPen(QPen(Qt.white,1))
     def setRect(self,x,y,w,h):
@@ -68,7 +70,8 @@ class Board(XGraphicsRectItem):
         self.setPos(x,y)
     def setTitle(self,str):
         self.title.setPlainText(str)
-    def update(self): # 내부 브릭들의 위치를 정렬한다.
+    # 내부 브릭들의 위치를 정렬한다.     
+    def update(self): 
         self.Bricks.sort(key = lambda x:x.rect().y())
         temp = self.rect().y()
         temp += 70
@@ -77,6 +80,7 @@ class Board(XGraphicsRectItem):
             temp+=b.rect().height()
             temp+=self.delta
 
+    #보드에 새로운 브릭을 추가한다.
     def addBrick(self,scene):
         b = Brick()
         b.setRect(self.pos().x(),self.pos().y(),self.rect().width()-self.delta*2,self.minimal_brick_height)
@@ -86,11 +90,25 @@ class Board(XGraphicsRectItem):
         self.isSaved = False
         self.update()
         scene.addItem(b)
-    def export(self):
+    def addBrickFromData(self,scene,data):
+        b = Brick(data[0],data[1],data[2])
+        b.setRect(self.pos().x(),self.pos().y(),self.rect().width()-self.delta*2,self.minimal_brick_height)
+        b.heightUpdate()
+
+        self.Bricks.append(b)
+        self.isSaved = False
+        self.update()
+        scene.addItem(b)
+        
+    def dataExport(self):
         l = []
         for b in self.Bricks:
             l.append([b.title.toPlainText(),b.text.toPlainText(),b.color])
         return l
+    def dataImport(self,scene,data):
+        for d in data:
+            self.addBrickFromData(scene,d)
+        
 class MWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -99,10 +117,13 @@ class MWindow(QMainWindow):
         self.toolbar = self.addToolBar('toolbar')
         self.resetTimeEdit = QTimeEdit() # 매일 루틴 리셋 시간을 지정하는 Editor
         self.resetTimeEdit.setUpdatesEnabled(True)
+        self.resetTimeEdit.timeChanged.connect(self.resetTimeUpdate)
         self.toolbar.addWidget(QLabel('Reset at'))
         self.toolbar.addWidget(self.resetTimeEdit)
         self.saveLabel = QLabel('Saved')
         self.toolbar.addWidget(self.saveLabel)
+    def resetTimeUpdate(self):
+        resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
 
 class App(Genesis):
     default_size = [2560,1286]
@@ -114,9 +135,16 @@ class App(Genesis):
             self.isTextChanged = True
             
     def saveData(self):
-        data = {'Todo':self.Todo.export(),'Ongoing':self.Ongoing.export(),'Done':self.Done.export(),'reset':resetTime}
+        data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport(),'Reset':resetTime}
         with open(saveFilePath.replace('\\',''), 'wb') as f:
             pickle.dump(data,f)   
+    def removeBrick(self):
+        if self.currentObject != None:
+            for board in [self.Todo,self.Ongoing,self.Done]:
+                if self.currentObject in board.Bricks:
+                    board.Bricks.remove(self.currentObject)
+                    self.scene.removeItem(self.currentObject)
+            self.currentObject = None
     def initUI(self):
 
 
@@ -147,7 +175,9 @@ class App(Genesis):
         self.titleFormat.setFont(TitleFont)
         self.textFormat = QTextCharFormat()
         self.textFormat.setFont(QFont('Arial',14))
-        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit))
+        self.removeButton = QPushButton('Remove Brick')
+        self.removeButton.clicked.connect(self.removeBrick)
+        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.removeButton,1))
         self.editorFrame.hide()
 
 
@@ -346,7 +376,6 @@ class App(Genesis):
             if self.saveTimer < self.saveInterval:
                 self.saveTimer+=1
             else:                
-                print('save')
                 self.saveData()
                 self.saveTimer = 0
                 self.isSaved = True
@@ -365,14 +394,29 @@ if __name__ == '__main__':
     #폴더 생성
     if len(glob.glob(directoryName.replace('\\','')))<1:
         os.system('mkdir -p '+directoryName)
-    if len(glob.glob(saveFilePath.replace('\\','')))<1:
-        os.system('touch '+saveFilePath)
     
     
     app = QApplication(sys.argv)
     mwindow = MWindow()
     Appli = App()
     Appli.mw = mwindow
+    
+    #세이브 데이터 생성
+    if len(glob.glob(saveFilePath.replace('\\','')))<1:
+        os.system('touch '+saveFilePath)
+    else:
+        try:
+            data = pickle.load(open(saveFilePath.replace('\\',''),'rb'))
+            todo = data['Todo']
+            ongoing = data['Ongoing']
+            done = data['Done']
+            Appli.Todo.dataImport(Appli.scene,todo)
+            Appli.Ongoing.dataImport(Appli.scene,ongoing)
+            Appli.Done.dataImport(Appli.scene,done)
+            resetTime = data['Reset']
+        except:
+            pass
+    
     mwindow.setCentralWidget(Appli)
     mwindow.show()    
     

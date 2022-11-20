@@ -3,6 +3,8 @@ from MyPyLib import *
 BrickTitleFont = QFont('Arial',20)
 BrickTitleFont.setBold(True)
 BrickTextFont = QFont('Arial',15)
+assessment = ['Did a few','Not Enough','Normal','Well Done!','Excellent!']
+
 
 home_path = os.path.expanduser('~')
 directoryName = home_path+"/Library/Application\ Support/LayBricks"
@@ -134,6 +136,43 @@ class App(Genesis):
             self.isSaved = False
             self.isTextChanged = True
             
+    def self_assessment_changed(self):
+        if self.slider.value()>0:
+            newLine = 'Self-Assessment: '+assessment[self.slider.value()-1]
+            self.assessment_label.setText(newLine)
+            title = self.currentObject.title.toPlainText()
+            text = self.currentObject.text.toPlainText()
+            l = text.split('\n')
+            text_changed = False
+            for idx,line in enumerate(l):
+                if '#Self-Assessment' in line:
+                    l[idx] = '#'+newLine
+                    text_changed = True
+            if not text_changed:
+                l.append('#'+newLine)
+            newText = '\n'.join(l)
+            self.textEdit.clear()
+            self.textEdit.setCurrentCharFormat(self.titleFormat)
+            self.textEdit.insertPlainText(title+'\n')
+            self.textEdit.setCurrentCharFormat(self.textFormat)
+            self.textEdit.insertPlainText(newText)
+
+        else:
+            self.assessment_label.setText('Self-Assessment Checker')            
+            title = self.currentObject.title.toPlainText()
+            text = self.currentObject.text.toPlainText()
+            l = text.split('\n')
+            for line in l:
+                if '#Self-Assessment' in line:
+                    l.remove(line)
+            newText = '\n'.join(l)
+            self.textEdit.clear()
+            self.textEdit.setCurrentCharFormat(self.titleFormat)
+            self.textEdit.insertPlainText(title+'\n')
+            self.textEdit.setCurrentCharFormat(self.textFormat)
+            self.textEdit.insertPlainText(newText)
+            
+            
     def saveData(self):
         data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport(),'Reset':resetTime}
         with open(saveFilePath.replace('\\',''), 'wb') as f:
@@ -177,7 +216,12 @@ class App(Genesis):
         self.textFormat.setFont(QFont('Arial',14))
         self.removeButton = QPushButton('Remove Brick')
         self.removeButton.clicked.connect(self.removeBrick)
-        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.removeButton,1))
+        self.assessment_label = QLabel('Self-Assessment Checker')
+        self.slider = QSlider(Qt.Horizontal,self)
+        self.slider.setRange(0,5)
+        self.slider.setValue(0)
+        self.slider.valueChanged.connect(self.self_assessment_changed)
+        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.assessment_label,self.slider,self.removeButton,1))
         self.editorFrame.hide()
 
 

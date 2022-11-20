@@ -5,7 +5,7 @@ BrickTitleFont.setBold(True)
 BrickTextFont = QFont('Arial',15)
 
 home_path = os.path.expanduser('~')
-directoryName = home_path+"/DanoLib/LayBricks"
+directoryName = home_path+"/Library/Application\ Support/LayBricks"
 
 resetTime = "05:00:00"
 
@@ -102,8 +102,12 @@ class App(Genesis):
 
     def textUpdate(self):
         if self.isTextChanged == False:
+            self.isSaved = False
             self.isTextChanged = True
-
+            
+    def saveData(self):
+        data = {'Todo':self.Todo,'Ongoing':self.Ongoing,'Done':self.Done,'reset':resetTime}
+        pickle.dump
         
     def initUI(self):
 
@@ -306,7 +310,6 @@ class App(Genesis):
             self.editorFrameMotionTimer-=1
 
         if self.isTextChanged:
-            self.isSaved = False
             texts = self.textEdit.toPlainText().replace('\t','    ').split('\n')
             #Brick Update
             if self.currentObject != None:

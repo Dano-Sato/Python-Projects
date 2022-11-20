@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui,QtCore,QtWidgets
-import sys, random,time, glob,pickle,os
+import sys, random,time, glob,pickle,os,numpy
 from Lib_PyHigh import PythonHighlighter
 
 
@@ -69,7 +69,7 @@ class Genesis(QWidget):
         ###Paint Setting
         self.painter = QPainter()
         self.color = 0xFFFFFF
-        self.font = ['MS Gothic',20]
+        self.font = ['Arial',20]
         
     def paintEvent(self, event):
 
@@ -190,6 +190,13 @@ class XGraphicsRectItem(QGraphicsRectItem):
             rect.moveTo(self.pos().x()+self.parentItem().rect().x(),self.pos().y()+self.parentItem().rect().y())
         return rect
 
+    def moveTo(self,x,y):
+        vec = [x-self.pos().x(),y-self.pos().y()]
+        n = numpy.linalg.norm(vec)
+        if n>10:
+            self.setPos(self.pos().x()+vec[0]/2,self.pos().y()+vec[1]/2)
+        else:
+            self.setPos(x,y)     
 
 
 

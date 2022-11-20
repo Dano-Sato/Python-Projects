@@ -9,7 +9,7 @@ libs={"QtGui":QtGui,"QtCore":QtCore, "QtWidgets":QtWidgets, "os":os,"time":time,
 global SelectedLibrary
 
 home_path = os.path.expanduser('~')
-directoryName = home_path+"/DanoLib/PyLibViewer"
+directoryName = home_path+"/Library/Application\ Support/PyLibViewer"
 
 
 class mySearchList(SearchList):
@@ -22,7 +22,8 @@ class mySearchList(SearchList):
                 if k.upper().count(str(self.search.text()).upper())>0:
                     item = QListWidgetItem(k)
                     self.list.addItem(item)
-                    for s in glob.glob(directoryName+'/*'):
+                    path = directoryName.replace('\\','')
+                    for s in glob.glob(path+'/*'):
                         for name in s.split('/')[-1].split('.')[0].split(']'):
                             if name==k:
                                 item.setBackground(QColor(0xBBAAAAA))
@@ -39,6 +40,7 @@ class MainWindow(QWidget):
     def loadMEMO(self,name):
         self.memoLabel.setText("MEMO on "+name)
         path = directoryName+'/'+name+'.txt'
+        path = path.replace('\\','')
         if len(glob.glob(path))>0:
             f = open(path,'r')
             self.memoEdit.setPlainText(''.join(f.readlines()))
@@ -48,7 +50,8 @@ class MainWindow(QWidget):
         if self.memoEdit.toPlainText()!="":
             name = self.memoLabel.text().split(' ')[2]
             path = directoryName+'/'+name+'.txt'
-
+            path = path.replace('\\',"")
+                         
             if len(glob.glob(directoryName))<1:
                 os.system('mkdir -p '+directoryName)
             if len(glob.glob(path))<1:
@@ -58,7 +61,7 @@ class MainWindow(QWidget):
         else:
             name = self.memoLabel.text().split(' ')[2]
             path = directoryName+'/'+name+'.txt'
-            if len(glob.glob(path))>0:
+            if len(glob.glob(path.replace('\\','')))>0:
                 os.system('rm '+path)
             
         

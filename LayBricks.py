@@ -6,6 +6,7 @@ BrickTextFont = QFont('Arial',15)
 
 home_path = os.path.expanduser('~')
 directoryName = home_path+"/Library/Application\ Support/LayBricks"
+saveFilePath = (directoryName+'/currentData.bin')
 
 resetTime = "05:00:00"
 
@@ -85,6 +86,11 @@ class Board(XGraphicsRectItem):
         self.isSaved = False
         self.update()
         scene.addItem(b)
+    def export(self):
+        l = []
+        for b in self.Bricks:
+            l.append([b.title.toPlainText(),b.text.toPlainText(),b.color])
+        return l
 class MWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -95,6 +101,8 @@ class MWindow(QMainWindow):
         self.resetTimeEdit.setUpdatesEnabled(True)
         self.toolbar.addWidget(QLabel('Reset at'))
         self.toolbar.addWidget(self.resetTimeEdit)
+        self.saveLabel = QLabel('Saved')
+        self.toolbar.addWidget(self.saveLabel)
 
 class App(Genesis):
     default_size = [2560,1286]
@@ -106,9 +114,9 @@ class App(Genesis):
             self.isTextChanged = True
             
     def saveData(self):
-        data = {'Todo':self.Todo,'Ongoing':self.Ongoing,'Done':self.Done,'reset':resetTime}
-        pickle.dump
-        
+        data = {'Todo':self.Todo.export(),'Ongoing':self.Ongoing.export(),'Done':self.Done.export(),'reset':resetTime}
+        with open(saveFilePath.replace('\\',''), 'wb') as f:
+            pickle.dump(data,f)   
     def initUI(self):
 
 
@@ -334,12 +342,15 @@ class App(Genesis):
 
         if not self.isSaved:
             #Save
+            self.mw.saveLabel.setText('Saving...')
             if self.saveTimer < self.saveInterval:
                 self.saveTimer+=1
             else:                
                 print('save')
+                self.saveData()
                 self.saveTimer = 0
                 self.isSaved = True
+                self.mw.saveLabel.setText('Saved')
         
 
 
@@ -350,9 +361,18 @@ class App(Genesis):
 
 
 if __name__ == '__main__':
+
+    #폴더 생성
+    if len(glob.glob(directoryName.replace('\\','')))<1:
+        os.system('mkdir -p '+directoryName)
+    if len(glob.glob(saveFilePath.replace('\\','')))<1:
+        os.system('touch '+saveFilePath)
+    
+    
     app = QApplication(sys.argv)
     mwindow = MWindow()
     Appli = App()
+    Appli.mw = mwindow
     mwindow.setCentralWidget(Appli)
     mwindow.show()    
     

@@ -124,6 +124,8 @@ class MWindow(QMainWindow):
         self.toolbar.addWidget(self.resetTimeEdit)
         self.saveLabel = QLabel('Saved')
         self.toolbar.addWidget(self.saveLabel)
+        self.removeButton = QPushButton('Remove All')
+        self.toolbar.addWidget(self.removeButton)
     def resetTimeUpdate(self):
         resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
 
@@ -135,6 +137,16 @@ class App(Genesis):
         if self.isTextChanged == False:
             self.isSaved = False
             self.isTextChanged = True
+            
+    def removeAll(self):
+        self.isSaved = False
+        l = [self.Todo,self.Ongoing,self.Done]
+        for board in l:
+            for b in board.Bricks:
+                self.scene.removeItem(b)
+            board.Bricks = []
+        self.currentObject = None
+        
             
     def self_assessment_changed(self):
         if self.slider.value()>0:
@@ -179,6 +191,7 @@ class App(Genesis):
             pickle.dump(data,f)   
     def removeBrick(self):
         if self.currentObject != None:
+            self.isSaved = False
             for board in [self.Todo,self.Ongoing,self.Done]:
                 if self.currentObject in board.Bricks:
                     board.Bricks.remove(self.currentObject)
@@ -278,6 +291,7 @@ class App(Genesis):
         self.isSaved = False # 자동저장 여부를 확인
         self.saveTimer = 0 # 세이브 할때 사용하는 타이머 
         self.saveInterval = 200
+        
 
     def cursorPos(self):
         pos = self.getCursorPos()
@@ -300,6 +314,7 @@ class App(Genesis):
                         pos.setY(pos.y()+offset)
                         if button.rect().contains(pos.x(),pos.y()):
                             board.addBrick(self.scene)
+                            self.isSaved = False
                         for brick in board.Bricks:
                             if brick.rect().contains(pos.x(),pos.y()):
                                 clickedBrick = True
@@ -426,7 +441,6 @@ class App(Genesis):
                 self.mw.saveLabel.setText('Saved')
         
 
-
         #Brick들을 정렬, Dragging되는 오브젝트 처리
 
 
@@ -444,7 +458,7 @@ if __name__ == '__main__':
     mwindow = MWindow()
     Appli = App()
     Appli.mw = mwindow
-    
+    Appli.mw.removeButton.clicked.connect(Appli.removeAll)
     #세이브 데이터 생성
     if len(glob.glob(saveFilePath.replace('\\','')))<1:
         os.system('touch '+saveFilePath)

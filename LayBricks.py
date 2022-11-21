@@ -110,6 +110,15 @@ class Board(XGraphicsRectItem):
     def dataImport(self,scene,data):
         for d in data:
             self.addBrickFromData(scene,d)
+            
+class RoutineManager(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Routine Manager')
+        self.setWindowModality(Qt.NonModal)
+        self.resize(1200,800)        
+        self.layout = XHLayout(XVLayout())
+        self.setLayout(self.layout)
         
 class MWindow(QMainWindow):
     def __init__(self):
@@ -122,12 +131,23 @@ class MWindow(QMainWindow):
         self.resetTimeEdit.timeChanged.connect(self.resetTimeUpdate)
         self.toolbar.addWidget(QLabel('Reset at'))
         self.toolbar.addWidget(self.resetTimeEdit)
-        self.saveLabel = QLabel('Saved')
-        self.toolbar.addWidget(self.saveLabel)
+        self.routineManager = RoutineManager()
+        self.routineManagerButton = QPushButton('Routine Manager')
+        self.routineManagerButton.clicked.connect(self.openRoutineManager)
+        self.toolbar.addWidget(self.routineManagerButton)        
+
         self.removeButton = QPushButton('Remove All')
         self.toolbar.addWidget(self.removeButton)
+        
+        self.saveLabel = QLabel('Saved')
+        self.toolbar.addWidget(self.saveLabel)
+
     def resetTimeUpdate(self):
         resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
+        
+    def openRoutineManager(self):
+        self.routineManager.show()
+        
 
 class App(Genesis):
     default_size = [2560,1286]

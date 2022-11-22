@@ -176,6 +176,18 @@ def _XBoxLayout(type, components):
     return layout   
 
 
+class Xt():
+    @classmethod
+    def rect(cls,graphicsItem):
+        try:
+            rect = graphicsItem.rect()
+        except:
+            rect = graphicsItem.boundingRect()
+        rect.moveTo(graphicsItem.pos().x(),graphicsItem.pos().y())
+        if graphicsItem.parentItem() != None:
+            rect.moveTo(graphicsItem.pos().x()+graphicsItem.parentItem().rect().x(),graphicsItem.pos().y()+graphicsItem.parentItem().rect().y())
+        return rect
+        
 
 class XGraphicsRectItem(QGraphicsRectItem):
     def __init__(self):

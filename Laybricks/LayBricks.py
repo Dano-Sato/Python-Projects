@@ -16,7 +16,7 @@ saveFilePath = (directoryName+'/currentData.bin')
 resetTime = "05:00:00"
 
 class Brick(XGraphicsRectItem):
-    def __init__(self,_title='Title',_text='text',_color=None):
+    def __init__(self,_title='Title',_text='',_color=None):
         super().__init__()
         self.title = QGraphicsTextItem(_title)
         self.title.setFont(BrickTitleFont)
@@ -24,6 +24,9 @@ class Brick(XGraphicsRectItem):
         self.text = QGraphicsTextItem(_text)
         self.text.setFont(BrickTextFont)
         self.text.setParentItem(self)
+        self.foldButton = QGraphicsTextItem('⬆')
+        self.foldButton.setFont(BrickTextFont)
+        self.foldButton.setParentItem(self)
         if _color == None:
             _color = QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))
         self.color = _color
@@ -33,18 +36,35 @@ class Brick(XGraphicsRectItem):
         super().setRect(0,0,w,h)
         self.title.setPos(5,5)
         self.text.setPos(10,40)
+        self.foldButton.setPos(w-35,8)
         self.text.setTextWidth(self.rect().width()-20)
         self.setPos(x,y) # Coordinate를 망가뜨리지 않기 위해 이렇게 설계
+    def fold(self):
+        if self.foldButton.toPlainText()=='⬆':
+            self.foldButton.setPlainText('⬇')
+            self.text.hide()
+        else:
+            self.foldButton.setPlainText('⬆')
+            self.text.show()
+            
+            
     def setTitle(self,str):
         self.title.setPlainText(str)
     def setText(self,str):
         self.text.setPlainText(str)
     def heightUpdate(self):
-        h1 = self.title.boundingRect().height()
-        h2 = self.text.boundingRect().height()
-        rect = self.rect()
-        rect.setHeight(h1+h2+10)
-        self.setRect(rect.x(),rect.y(),rect.width(),rect.height())
+        if self.foldButton.toPlainText()=='⬆':
+            h1 = self.title.boundingRect().height()
+            h2 = self.text.boundingRect().height()
+            rect = self.rect()
+            rect.setHeight(min(rect.height()+15,h1+h2+10))
+            self.setRect(rect.x(),rect.y(),rect.width(),rect.height())
+        else:
+            h1 = self.title.boundingRect().height()
+            rect = self.rect()
+            rect.setHeight(max(rect.height()-15,h1+10))
+            self.setRect(rect.x(),rect.y(),rect.width(),rect.height())
+            
 
 
 
@@ -80,10 +100,16 @@ class Board(XGraphicsRectItem):
         self.Bricks.sort(key = lambda x:x.rect().y())
         temp = self.rect().y()
         temp += 70
+        lastUnFoldBrick = None
         for b in self.Bricks:
             b.moveTo(self.rect().x()+self.delta,temp)
+            if b.foldButton.toPlainText()=='⬆':
+                lastUnFoldBrick = b
             temp+=b.rect().height()
             temp+=self.delta
+        if temp>self.rect().height():
+            if lastUnFoldBrick != None:
+                lastUnFoldBrick.fold()
 
     #보드에 새로운 브릭을 추가한다.
     def addBrick(self,scene):
@@ -332,6 +358,8 @@ class App(Genesis):
                             self.isSaved = False
                         for brick in board.Bricks:
                             if brick.rect().contains(pos.x(),pos.y()):
+                                if Xt.rect(brick.foldButton).contains(pos.x(),pos.y()):
+                                    brick.fold()
                                 clickedBrick = True
                                 if self.currentObject != None:
                                     self.currentObject.setBrush(self.currentObject.color)
@@ -388,6 +416,8 @@ class App(Genesis):
         super().update()
         for board in [self.Todo,self.Ongoing,self.Done]:
             board.update()
+            for b in board.Bricks:
+                b.heightUpdate()
         if self.draggedObject != None:
             self.draggedObject.setPos(self.cursorPos().x()-self.draggingOffset[0],self.cursorPos().y()-self.draggingOffset[1])
             for board in [self.Todo,self.Ongoing,self.Done]:

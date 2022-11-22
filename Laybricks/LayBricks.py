@@ -18,7 +18,7 @@ class MWindow(QMainWindow):
         super().__init__()
         #self.showMaximized()
         self.resize(1440,800)
-        self.setWindowTitle("LayBricks")
+        self.setWindowTitle("🧱LayBricks")
         self.toolbar = self.addToolBar('toolbar')
         self.resetTimeEdit = QTimeEdit() # 매일 루틴 리셋 시간을 지정하는 Editor
         self.resetTimeEdit.setUpdatesEnabled(True)
@@ -33,8 +33,6 @@ class MWindow(QMainWindow):
         self.removeButton = QPushButton('Remove All')
         self.toolbar.addWidget(self.removeButton)
         
-        self.saveLabel = QLabel('Saved')
-        self.toolbar.addWidget(self.saveLabel)
 
     def resetTimeUpdate(self):
         resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
@@ -48,10 +46,11 @@ class App(Genesis):
     scale = 1
 
     def textUpdate(self):
-        if self.isTextChanged == False:
-            self.isSaved = False
-            self.isTextChanged = True
-            
+        #if self.isTextChanged == False:
+        self.saveTimer = 0
+        self.isSaved = False
+        self.isTextChanged = True
+        
     def removeAll(self):
         self.isSaved = False
         l = [self.Todo,self.Ongoing,self.Done]
@@ -204,7 +203,7 @@ class App(Genesis):
         self.currentObject = None
         self.isSaved = False # 자동저장 여부를 확인
         self.saveTimer = 0 # 세이브 할때 사용하는 타이머 
-        self.saveInterval = 200
+        self.saveInterval = 30
         
 
     def cursorPos(self):
@@ -227,8 +226,9 @@ class App(Genesis):
                         pos.setX(pos.x()+offset)
                         pos.setY(pos.y()+offset)
                         if button.rect().contains(pos.x(),pos.y()):
-                            board.addBrick(self.scene)
-                            self.isSaved = False
+                            if len(board.Bricks)<15:
+                                board.addBrick(self.scene)
+                                self.isSaved = False
                         for brick in board.Bricks:
                             if brick.rect().contains(pos.x(),pos.y()):
                                 if Xt.rect(brick.foldButton).contains(pos.x(),pos.y()):
@@ -256,6 +256,7 @@ class App(Genesis):
 
                                 self.draggedObject=brick
                                 self.draggingOffset = [self.cursorPos().x()-self.draggedObject.rect().x(),self.cursorPos().y()-self.draggedObject.rect().y()]
+
                     if not clickedBrick:
                         if self.currentObject != None:
                             self.currentObject.setBrush(self.currentObject.color)
@@ -298,7 +299,7 @@ class App(Genesis):
                     currentBoard = board
                     break
             for board in [self.Todo,self.Ongoing,self.Done]:            
-                if board.rect().contains(self.draggedObject.rect().center()):
+                if board.rect().contains(self.draggedObject.rect().center()) and len(board.Bricks)<15:
                     if currentBoard != board:
                         board.Bricks.append(self.draggedObject)
                         currentBoard.Bricks.remove(self.draggedObject)
@@ -349,14 +350,12 @@ class App(Genesis):
 
         if not self.isSaved:
             #Save
-            self.mw.saveLabel.setText('Saving...')
             if self.saveTimer < self.saveInterval:
                 self.saveTimer+=1
             else:                
                 self.saveData()
                 self.saveTimer = 0
                 self.isSaved = True
-                self.mw.saveLabel.setText('Saved')
         
 
         #Brick들을 정렬, Dragging되는 오브젝트 처리

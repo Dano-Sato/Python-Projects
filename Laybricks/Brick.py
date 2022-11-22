@@ -128,5 +128,6 @@ class Board(XGraphicsRectItem):
             l.append([b.title.toPlainText(),b.text.toPlainText(),b.color])
         return l
     def dataImport(self,scene,data):
+        data.reverse()
         for d in data:
             self.addBrickFromData(scene,d)

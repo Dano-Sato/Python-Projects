@@ -33,7 +33,6 @@ class MWindow(QMainWindow):
         self.removeButton = QPushButton('Remove All')
         self.toolbar.addWidget(self.removeButton)
         
-
     def resetTimeUpdate(self):
         resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
         
@@ -44,13 +43,14 @@ class MWindow(QMainWindow):
 class App(Genesis):
     default_size = [2560,1286]
     scale = 1
+    charNum = 0
 
     def textUpdate(self):
         #if self.isTextChanged == False:
         self.saveTimer = 0
         self.isSaved = False
         self.isTextChanged = True
-        
+
     def removeAll(self):
         self.isSaved = False
         l = [self.Todo,self.Ongoing,self.Done]
@@ -347,6 +347,8 @@ class App(Genesis):
                     self.textEdit.setCurrentCharFormat(self.textFormat)
                 self.prevBN = cursor.blockNumber()
                 self.isTextChanged = False
+
+                
 
         if not self.isSaved:
             #Save

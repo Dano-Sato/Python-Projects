@@ -36,7 +36,7 @@ class Brick(XGraphicsRectItem):
             self.text.hide()
         else:
             self.foldButton.setPlainText('⬆')
-            self.text.show()
+            #self.text.show()
             
             
     def setTitle(self,str):
@@ -50,6 +50,8 @@ class Brick(XGraphicsRectItem):
             rect = self.rect()
             rect.setHeight(min(rect.height()*1.15,h1+h2+10))
             self.setRect(rect.x(),rect.y(),rect.width(),rect.height())
+            if rect.height() == h1+h2+10:
+                self.text.show()
         else:
             h1 = self.title.boundingRect().height()
             rect = self.rect()

@@ -32,7 +32,8 @@ class MWindow(QMainWindow):
 
         self.removeButton = QPushButton('Remove All')
         self.toolbar.addWidget(self.removeButton)
-        
+        self.supplyButton = QPushButton('Supply Routines')
+        self.toolbar.addWidget(self.supplyButton)        
     def resetTimeUpdate(self):
         resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
         
@@ -59,8 +60,9 @@ class App(Genesis):
                 self.scene.removeItem(b)
             board.Bricks = []
         self.currentObject = None
-        
-            
+    def supplyRoutines(self):
+        for r in self.mw.routineManager.routines:
+            self.Todo.addBrickFromData(self.scene,r.export())
     def self_assessment_changed(self):
         if self.slider.value()>0:
             newLine = 'Self-Assessment: '+assessment[self.slider.value()-1]
@@ -99,7 +101,7 @@ class App(Genesis):
             
             
     def saveData(self):
-        data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport(),'Reset':resetTime}
+        data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport(),'Reset':resetTime,'Routines':self.mw.routineManager.export()}
         with open(saveFilePath.replace('\\',''), 'wb') as f:
             pickle.dump(data,f)   
     def removeBrick(self):
@@ -371,8 +373,10 @@ class App(Genesis):
                     self.textEdit.setCurrentCharFormat(self.textFormat)
                 self.prevBN = cursor.blockNumber()
                 self.isTextChanged = False
-
                 
+        if not self.mw.routineManager.isSaved:
+            self.mw.routineManager.isSaved = True
+            self.isSaved = False
 
         if not self.isSaved:
             #Save
@@ -402,11 +406,12 @@ if __name__ == '__main__':
     Appli = App()
     Appli.mw = mwindow
     Appli.mw.removeButton.clicked.connect(Appli.removeAll)
+    Appli.mw.supplyButton.clicked.connect(Appli.supplyRoutines)
     #세이브 데이터 생성
     if len(glob.glob(saveFilePath.replace('\\','')))<1:
         os.system('touch '+saveFilePath)
     else:
-        try:
+        try: #존재할 경우 데이터를 불러온다.
             data = pickle.load(open(saveFilePath.replace('\\',''),'rb'))
             todo = data['Todo']
             ongoing = data['Ongoing']
@@ -414,6 +419,7 @@ if __name__ == '__main__':
             Appli.Todo.dataImport(Appli.scene,todo)
             Appli.Ongoing.dataImport(Appli.scene,ongoing)
             Appli.Done.dataImport(Appli.scene,done)
+            mwindow.routineManager.load(data['Routines'])
             resetTime = data['Reset']
         except:
             pass

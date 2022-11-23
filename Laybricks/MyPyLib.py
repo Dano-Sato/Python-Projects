@@ -144,6 +144,27 @@ class SearchList(QWidget):
         self.setLayout(self.layout)
         self.listUpdate()
 
+#Test
+
+class XColorDisplay(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.color = None
+
+    def setColor(self, color):
+        self.color = QColor(color)
+        self.update()
+
+    def paintEvent(self, event=None):
+        painter = QPainter(self)
+        if self.color is not None:
+            painter.setBrush(QBrush(self.color))
+            painter.drawRect(self.rect())
+
+    def getColorName(self):
+        return unicode(self.color.name())
+
 
 
 def XButton(buttonName, function):

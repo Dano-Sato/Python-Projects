@@ -114,6 +114,8 @@ class Board(XGraphicsRectItem):
         self.isSaved = False
         self.update()
         scene.addItem(b)
+
+    #[title,text,color] 리스트 형태의 데이터를 받아서 브릭을 구성한다.
     def addBrickFromData(self,scene,data):
         b = Brick(data[0],data[1],data[2])
         b.setRect(self.pos().x(),self.pos().y(),self.rect().width()-self.delta*2,self.minimal_brick_height)

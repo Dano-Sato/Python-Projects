@@ -110,6 +110,20 @@ class App(Genesis):
                     board.Bricks.remove(self.currentObject)
                     self.scene.removeItem(self.currentObject)
             self.currentObject = None
+    def changeColor(self):
+        if self.currentObject != None:
+            color = QColorDialog.getColor()
+            if color.isValid():
+                self.currentObject.color = color
+                self.currentObject.setBrush(self.currentObject.color) # 배경색 정함
+                self.colorDisplay.setColor(color)
+    def randomColor(self):
+        if self.currentObject != None: 
+            color = QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))            
+            self.currentObject.color = color
+            self.currentObject.setBrush(self.currentObject.color) # 배경색 정함
+            self.colorDisplay.setColor(color)
+            
     def initUI(self):
 
 
@@ -147,7 +161,15 @@ class App(Genesis):
         self.slider.setRange(0,5)
         self.slider.setValue(0)
         self.slider.valueChanged.connect(self.self_assessment_changed)
-        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.assessment_label,self.slider,self.removeButton,1))
+        self.colorButton = QPushButton('Pick Color')
+        self.colorButton2 = QPushButton('Random Color')
+        self.colorButton.clicked.connect(self.changeColor)
+        self.colorButton2.clicked.connect(self.randomColor)
+        self.colorDisplay = XColorDisplay()
+        self.colorPicker = XHLayout(self.colorDisplay,self.colorButton,self.colorButton2)
+        self.colorPicker.setStretchFactor(self.colorDisplay,1)
+        self.colorPicker.setStretchFactor(self.colorButton,3)
+        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.assessment_label,self.slider,self.colorPicker,self.removeButton,1))
         self.editorFrame.hide()
 
 
@@ -244,6 +266,8 @@ class App(Genesis):
                                 self.currentObject=brick
                                # str = brick.title.toPlainText()+'\n'+brick.text.toPlainText()
                                # self.textEdit.setPlainText(str)
+                               
+                                self.colorDisplay.setColor(brick.color)
                                 title = brick.title.toPlainText()
                                 text = brick.text.toPlainText()
                                 self.textEdit.clear()

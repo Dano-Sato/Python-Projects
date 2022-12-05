@@ -208,6 +208,16 @@ class Xt():
         if graphicsItem.parentItem() != None:
             rect.moveTo(graphicsItem.pos().x()+graphicsItem.parentItem().rect().x(),graphicsItem.pos().y()+graphicsItem.parentItem().rect().y())
         return rect
+    
+    @classmethod
+    def showError(cls,errMessage):
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText(errMessage)
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        
         
 
 class XGraphicsRectItem(QGraphicsRectItem):

@@ -7,7 +7,7 @@ assessment = ['Did a few','Not Enough','Normal','Well Done!','Excellent!']
 
 home_path = os.path.expanduser('~')
 directoryName = home_path+"/Library/Application\ Support/LayBricks"
-saveFilePath = (directoryName+'/currentData.bin')
+saveFilePath = (directoryName+'/currentData.laybricks')
 
 resetTime = "05:00:00"
 
@@ -25,15 +25,27 @@ class MWindow(QMainWindow):
         self.resetTimeEdit.timeChanged.connect(self.resetTimeUpdate)
         self.toolbar.addWidget(QLabel('Reset at'))
         self.toolbar.addWidget(self.resetTimeEdit)
+
+        self.exportButton = QPushButton('Export Data')
+        self.toolbar.addWidget(self.exportButton)
+    
+        self.importButton = QPushButton('Import Data')
+        self.toolbar.addWidget(self.importButton)
+
+        self.toolbar.addSeparator()
         self.routineManager = RoutineManager()
         self.routineManagerButton = QPushButton('Routine Manager')
         self.routineManagerButton.clicked.connect(self.openRoutineManager)
         self.toolbar.addWidget(self.routineManagerButton)        
 
-        self.removeButton = QPushButton('Remove All')
-        self.toolbar.addWidget(self.removeButton)
         self.supplyButton = QPushButton('Supply Routines')
         self.toolbar.addWidget(self.supplyButton)        
+        
+        self.toolbar.addSeparator()
+
+        self.removeButton = QPushButton('Remove All')
+        self.toolbar.addWidget(self.removeButton)
+        
     def resetTimeUpdate(self):
         resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
         
@@ -46,6 +58,32 @@ class App(Genesis):
     scale = 1
     charNum = 0
 
+    def exportData(self):
+        FileSave = QFileDialog.getSaveFileName(self,'Save file',directoryName.replace('\\',''),'*.laybricks')
+        print('test')
+
+    def importData(self):
+        ret = QMessageBox.question(self,'','If you import the other data,\nAll of the current data would be removed.\nIs it okay?', QMessageBox.No | QMessageBox.Yes)
+        if ret == QMessageBox.No:
+            return
+        FileLoad = QFileDialog.getOpenFileName(self,"Open File",directoryName.replace('\\',''),'*.laybricks')
+        if FileLoad[0]:
+            try:
+                print(FileLoad[0]) 
+                self.removeAll()
+                data = pickle.load(open(FileLoad[0],'rb'))            
+                todo = data['Todo']
+                ongoing = data['Ongoing']
+                done = data['Done']
+                Appli.Todo.dataImport(Appli.scene,todo)
+                Appli.Ongoing.dataImport(Appli.scene,ongoing)
+                Appli.Done.dataImport(Appli.scene,done)
+
+                print(data)
+            except:
+                Xt.showError("File Load Error")            
+        else:
+            print("not opened")
     def textUpdate(self):
         #if self.isTextChanged == False:
         self.saveTimer = 0
@@ -407,6 +445,8 @@ if __name__ == '__main__':
     Appli.mw = mwindow
     Appli.mw.removeButton.clicked.connect(Appli.removeAll)
     Appli.mw.supplyButton.clicked.connect(Appli.supplyRoutines)
+    Appli.mw.exportButton.clicked.connect(Appli.exportData)
+    Appli.mw.importButton.clicked.connect(Appli.importData)
     #세이브 데이터 생성
     if len(glob.glob(saveFilePath.replace('\\','')))<1:
         os.system('touch '+saveFilePath)

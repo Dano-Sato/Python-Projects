@@ -8,6 +8,7 @@ assessment = ['Did a few','Not Enough','Normal','Well Done!','Excellent!']
 home_path = os.path.expanduser('~')
 directoryName = home_path+"/Library/Application\ Support/LayBricks"
 saveFilePath = (directoryName+'/currentData.laybricks')
+configFilePath = (directoryName+'/currentConfig.config')
 
 resetTime = "05:00:00"
 
@@ -26,10 +27,10 @@ class MWindow(QMainWindow):
         self.toolbar.addWidget(QLabel('Reset at'))
         self.toolbar.addWidget(self.resetTimeEdit)
 
-        self.exportButton = QPushButton('Export Data')
+        self.exportButton = QPushButton('Save Data')
         self.toolbar.addWidget(self.exportButton)
     
-        self.importButton = QPushButton('Import Data')
+        self.importButton = QPushButton('Load Data')
         self.toolbar.addWidget(self.importButton)
 
         self.toolbar.addSeparator()
@@ -59,17 +60,22 @@ class App(Genesis):
     charNum = 0
 
     def exportData(self):
-        FileSave = QFileDialog.getSaveFileName(self,'Save file',directoryName.replace('\\',''),'*.laybricks')
-        print('test')
-
+        now = QDate.currentDate().toString('yyyy.MM.dd')
+        FileSave = QFileDialog.getSaveFileName(self,'Save file',directoryName.replace('\\','')+'/'+now,'*.laybricks')
+        if FileSave[0]:
+            data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport()}
+            with open(FileSave[0].replace('\\',''), 'wb') as f:
+                pickle.dump(data,f)                        
+            
     def importData(self):
-        ret = QMessageBox.question(self,'','If you import the other data,\nAll of the current data would be removed.\nIs it okay?', QMessageBox.No | QMessageBox.Yes)
+        '''
+        ret = QMessageBox.question(self,'','If you import data,\nAll of current data would be removed.\nIs it okay?', QMessageBox.No | QMessageBox.Yes)
         if ret == QMessageBox.No:
             return
+        '''
         FileLoad = QFileDialog.getOpenFileName(self,"Open File",directoryName.replace('\\',''),'*.laybricks')
         if FileLoad[0]:
             try:
-                print(FileLoad[0]) 
                 self.removeAll()
                 data = pickle.load(open(FileLoad[0],'rb'))            
                 todo = data['Todo']
@@ -79,11 +85,8 @@ class App(Genesis):
                 Appli.Ongoing.dataImport(Appli.scene,ongoing)
                 Appli.Done.dataImport(Appli.scene,done)
 
-                print(data)
             except:
-                Xt.showError("File Load Error")            
-        else:
-            print("not opened")
+                Xt.showError("File Load Error")
     def textUpdate(self):
         #if self.isTextChanged == False:
         self.saveTimer = 0
@@ -139,9 +142,12 @@ class App(Genesis):
             
             
     def saveData(self):
-        data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport(),'Reset':resetTime,'Routines':self.mw.routineManager.export()}
+        data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport()}
+        config = {'Reset':resetTime,'Routines':self.mw.routineManager.export()}
         with open(saveFilePath.replace('\\',''), 'wb') as f:
             pickle.dump(data,f)   
+        with open(configFilePath.replace('\\',''),'wb') as f:
+            pickle.dump(config,f)
     def removeBrick(self):
         if self.currentObject != None:
             self.isSaved = False
@@ -463,7 +469,12 @@ if __name__ == '__main__':
             resetTime = data['Reset']
         except:
             pass
-    
+        try:
+            config = pickle.load(open(configFilePath.replace('\\',''),'rb'))
+            mwindow.routineManager.load(config['Routines'])
+            resetTime = config['Reset']
+        except:
+            pass               
     mwindow.setCentralWidget(Appli)
     mwindow.show()    
     

@@ -18,6 +18,10 @@ class Brick(XGraphicsRectItem):
         self.foldButton = QGraphicsTextItem('⬆')
         self.foldButton.setFont(BrickTextFont)
         self.foldButton.setParentItem(self)
+        self.pinButton = QGraphicsTextItem('📌')
+        self.pinButton.setFont(BrickTextFont)
+        self.pinButton.setParentItem(self)
+        self.pinButton.hide()
         if _color == None:
             _color = QColor(random.randint(0,75),random.randint(0,75),random.randint(0,75))
         self.color = _color
@@ -28,6 +32,7 @@ class Brick(XGraphicsRectItem):
         self.title.setPos(5,5)
         self.text.setPos(10,40)
         self.foldButton.setPos(w-35,8)
+        self.pinButton.setPos(w-60,8)
         self.text.setTextWidth(self.rect().width()-20)
         self.setPos(x,y) # Coordinate를 망가뜨리지 않기 위해 이렇게 설계
     def fold(self):

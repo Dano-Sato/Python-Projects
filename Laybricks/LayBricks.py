@@ -97,9 +97,14 @@ class App(Genesis):
         self.isSaved = False
         l = [self.Todo,self.Ongoing,self.Done]
         for board in l:
+            remains = []
             for b in board.Bricks:
-                self.scene.removeItem(b)
-            board.Bricks = []
+                if b not in self.pinnedList:
+                    self.scene.removeItem(b)
+                else:
+                    remains.append(b)
+                    
+            board.Bricks=remains
         self.currentObject = None
     def supplyRoutines(self):
         for r in self.mw.routineManager.routines:
@@ -143,7 +148,7 @@ class App(Genesis):
             
     def saveData(self):
         data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport()}
-        config = {'Reset':resetTime,'Routines':self.mw.routineManager.export()}
+        config = {'Reset':resetTime,'Routines':self.mw.routineManager.export(),'Pinned':self.pinnedList}
         with open(saveFilePath.replace('\\',''), 'wb') as f:
             pickle.dump(data,f)   
         with open(configFilePath.replace('\\',''),'wb') as f:
@@ -153,9 +158,10 @@ class App(Genesis):
             self.isSaved = False
             for board in [self.Todo,self.Ongoing,self.Done]:
                 if self.currentObject in board.Bricks:
-                    board.Bricks.remove(self.currentObject)
-                    self.scene.removeItem(self.currentObject)
-            self.currentObject = None
+                    if self.currentObject not in self.pinnedList:
+                        board.Bricks.remove(self.currentObject)
+                        self.scene.removeItem(self.currentObject)
+                        self.currentObject = None
     def changeColor(self):
         if self.currentObject != None:
             color = QColorDialog.getColor()
@@ -215,8 +221,12 @@ class App(Genesis):
         self.colorPicker = XHLayout(self.colorDisplay,self.colorButton,self.colorButton2)
         self.colorPicker.setStretchFactor(self.colorDisplay,1)
         self.colorPicker.setStretchFactor(self.colorButton,3)
-        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.assessment_label,self.slider,self.colorPicker,self.removeButton,1))
+        self.pinButton = QCheckBox()
+        self.pinButton.setText('Don\'t remove this')
+        self.pinButton.stateChanged.connect(self.pinBrick)
+        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.assessment_label,self.slider,self.colorPicker,self.pinButton,self.removeButton,1))
         self.editorFrame.hide()
+        self.pinnedList = [] # 고정되어서 Remove All을 눌러도 안 지워지는 브릭들 리스트
 
 
         self.layout = XHLayout(self.view,self.editorFrame)
@@ -272,7 +282,16 @@ class App(Genesis):
         self.isSaved = False # 자동저장 여부를 확인
         self.saveTimer = 0 # 세이브 할때 사용하는 타이머 
         self.saveInterval = 30
-        
+
+    def pinBrick(self,state):
+        if state == Qt.Checked:
+            if self.currentObject not in self.pinnedList:
+                self.pinnedList.append(self.currentObject)
+            self.currentObject.pinButton.show()
+        else:
+            if self.currentObject in self.pinnedList:
+                self.pinnedList.remove(self.currentObject)
+            self.currentObject.pinButton.hide()
 
     def cursorPos(self):
         pos = self.getCursorPos()
@@ -323,7 +342,10 @@ class App(Genesis):
                                 self.textEdit.insertPlainText(text)
                                 self.currentObject.setBrush(self.currentObject.color.lighter().lighter())
                                 self.currentObject.setPen(QPen(Qt.black,1))
-
+                                if self.currentObject in self.pinnedList:
+                                    self.pinButton.setChecked(True)
+                                else:
+                                    self.pinButton.setChecked(False)
                                 self.draggedObject=brick
                                 self.draggingOffset = [self.cursorPos().x()-self.draggedObject.rect().x(),self.cursorPos().y()-self.draggedObject.rect().y()]
 

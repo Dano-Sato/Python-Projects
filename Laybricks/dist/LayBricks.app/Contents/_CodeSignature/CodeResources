@@ -6,11 +6,11 @@
 	<dict>
 		<key>Resources/base_library.zip</key>
 		<data>
-		5twpJONlrQuLnMZUamDxPht0Go0=
+		OAlsBUW6fPX6SJ+IuPTTH/1ca0c=
 		</data>
-		<key>Resources/icon-windowed.icns</key>
+		<key>Resources/laybrick.icns</key>
 		<data>
-		eEHOuYpZLB0vKGVIWGZOh5rH8+o=
+		/KYMer22TtBIgbvqC/GbXjQifJo=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -1140,14 +1140,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ozet7v9RzkO3bu89K0sfRH7QMiR/rje1dyC3GeAEOHc=
+			k+eEvLHOyzx9WCJPdsDZ3zXdYyBRHO843AExrBYVkFo=
 			</data>
 		</dict>
-		<key>Resources/icon-windowed.icns</key>
+		<key>Resources/laybrick.icns</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			uQo7VuWRab4Phv4EEGmfQsyqFqDIXZgO8OtgaAMvCzY=
+			0yjYXJHCWcMTeFcJdpuRv17I2s6K/eNKhrbR0cGsU2M=
 			</data>
 		</dict>
 	</dict>

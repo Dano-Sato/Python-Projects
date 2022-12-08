@@ -3,14 +3,14 @@ from RoutineManager import *
 from Brick import *
 
 
-assessment = ['Did a few','Not Enough','Normal','Well Done!','Excellent!']
+
+assessment = ['Did a few😔','Not Enough😢','Normal🙂','Well Done!👍','Excellent!😎']
 
 home_path = os.path.expanduser('~')
 directoryName = home_path+"/Library/Application\ Support/LayBricks"
 saveFilePath = (directoryName+'/currentData.laybricks')
 configFilePath = (directoryName+'/currentConfig.config')
 
-resetTime = "05:00:00"
 
             
         
@@ -21,11 +21,6 @@ class MWindow(QMainWindow):
         self.resize(1440,800)
         self.setWindowTitle("🧱LayBricks")
         self.toolbar = self.addToolBar('toolbar')
-        self.resetTimeEdit = QTimeEdit() # 매일 루틴 리셋 시간을 지정하는 Editor
-        self.resetTimeEdit.setUpdatesEnabled(True)
-        self.resetTimeEdit.timeChanged.connect(self.resetTimeUpdate)
-        self.toolbar.addWidget(QLabel('Reset at'))
-        self.toolbar.addWidget(self.resetTimeEdit)
 
         self.exportButton = QPushButton('Save Data')
         self.toolbar.addWidget(self.exportButton)
@@ -47,8 +42,6 @@ class MWindow(QMainWindow):
         self.removeButton = QPushButton('Remove All')
         self.toolbar.addWidget(self.removeButton)
         
-    def resetTimeUpdate(self):
-        resetTime = self.resetTimeEdit.time().toString("hh:mm:ss")
         
     def openRoutineManager(self):
         self.routineManager.show()
@@ -76,6 +69,9 @@ class App(Genesis):
         FileLoad = QFileDialog.getOpenFileName(self,"Open File",directoryName.replace('\\',''),'*.laybricks')
         if FileLoad[0]:
             try:
+                for board in [Appli.Todo,Appli.Ongoing,Appli.Done]:
+                    for b in board.Bricks:
+                        b.pinButton.hide()
                 self.removeAll()
                 data = pickle.load(open(FileLoad[0],'rb'))            
                 todo = data['Todo']
@@ -99,7 +95,7 @@ class App(Genesis):
         for board in l:
             remains = []
             for b in board.Bricks:
-                if b not in self.pinnedList:
+                if not b.pinButton.isVisible():
                     self.scene.removeItem(b)
                 else:
                     remains.append(b)
@@ -148,7 +144,7 @@ class App(Genesis):
             
     def saveData(self):
         data = {'Todo':self.Todo.dataExport(),'Ongoing':self.Ongoing.dataExport(),'Done':self.Done.dataExport()}
-        config = {'Reset':resetTime,'Routines':self.mw.routineManager.export(),'Pinned':self.pinnedList}
+        config = {'Routines':self.mw.routineManager.export()}
         with open(saveFilePath.replace('\\',''), 'wb') as f:
             pickle.dump(data,f)   
         with open(configFilePath.replace('\\',''),'wb') as f:
@@ -158,7 +154,7 @@ class App(Genesis):
             self.isSaved = False
             for board in [self.Todo,self.Ongoing,self.Done]:
                 if self.currentObject in board.Bricks:
-                    if self.currentObject not in self.pinnedList:
+                    if not self.currentObject.pinButton.isVisible():
                         board.Bricks.remove(self.currentObject)
                         self.scene.removeItem(self.currentObject)
                         self.currentObject = None
@@ -226,7 +222,6 @@ class App(Genesis):
         self.pinButton.stateChanged.connect(self.pinBrick)
         self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.assessment_label,self.slider,self.colorPicker,self.pinButton,self.removeButton,1))
         self.editorFrame.hide()
-        self.pinnedList = [] # 고정되어서 Remove All을 눌러도 안 지워지는 브릭들 리스트
 
 
         self.layout = XHLayout(self.view,self.editorFrame)
@@ -284,13 +279,10 @@ class App(Genesis):
         self.saveInterval = 30
 
     def pinBrick(self,state):
+        self.isSaved = False
         if state == Qt.Checked:
-            if self.currentObject not in self.pinnedList:
-                self.pinnedList.append(self.currentObject)
             self.currentObject.pinButton.show()
         else:
-            if self.currentObject in self.pinnedList:
-                self.pinnedList.remove(self.currentObject)
             self.currentObject.pinButton.hide()
 
     def cursorPos(self):
@@ -342,7 +334,7 @@ class App(Genesis):
                                 self.textEdit.insertPlainText(text)
                                 self.currentObject.setBrush(self.currentObject.color.lighter().lighter())
                                 self.currentObject.setPen(QPen(Qt.black,1))
-                                if self.currentObject in self.pinnedList:
+                                if self.currentObject.pinButton.isVisible():
                                     self.pinButton.setChecked(True)
                                 else:
                                     self.pinButton.setChecked(False)
@@ -488,19 +480,15 @@ if __name__ == '__main__':
             Appli.Ongoing.dataImport(Appli.scene,ongoing)
             Appli.Done.dataImport(Appli.scene,done)
             mwindow.routineManager.load(data['Routines'])
-            resetTime = data['Reset']
         except:
             pass
         try:
             config = pickle.load(open(configFilePath.replace('\\',''),'rb'))
             mwindow.routineManager.load(config['Routines'])
-            resetTime = config['Reset']
         except:
             pass               
     mwindow.setCentralWidget(Appli)
     mwindow.show()    
     
-    #resetTime 수정, 현재 파일이 있을경우 싹 받아와야 한다
-    mwindow.resetTimeEdit.setTime(QTime.fromString(resetTime,"hh:mm:ss"))
     
     app.exec_()

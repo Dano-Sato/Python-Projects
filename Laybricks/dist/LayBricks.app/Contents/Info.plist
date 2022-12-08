@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>LayBricks</string>
 	<key>CFBundleIconFile</key>
-	<string>icon-windowed.icns</string>
+	<string>laybrick.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>LayBricks</string>
 	<key>CFBundleInfoDictionaryVersion</key>

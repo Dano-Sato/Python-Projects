@@ -123,6 +123,11 @@ class Board(XGraphicsRectItem):
     #[title,text,color] 리스트 형태의 데이터를 받아서 브릭을 구성한다.
     def addBrickFromData(self,scene,data):
         b = Brick(data[0],data[1],data[2])
+        try:
+            if data[3]:
+                b.pinButton.show()
+        except:
+            pass
         b.setRect(self.pos().x(),self.pos().y(),self.rect().width()-self.delta*2,self.minimal_brick_height)
         b.heightUpdate()
 
@@ -134,7 +139,10 @@ class Board(XGraphicsRectItem):
     def dataExport(self):
         l = []
         for b in self.Bricks:
-            l.append([b.title.toPlainText(),b.text.toPlainText(),b.color])
+            pinned = False
+            if b.pinButton.isVisible():
+                pinned = True
+            l.append([b.title.toPlainText(),b.text.toPlainText(),b.color,pinned])
         return l
     def dataImport(self,scene,data):
         data.reverse()

@@ -2,7 +2,7 @@
  False,
  False,
  True,
- None,
+ ['/Users/satodano/Documents/Python/Laybricks/laybrick.icns'],
  None,
  False,
  False,
@@ -59,7 +59,7 @@
  [],
  False,
  False,
- 1669016617,
+ 1670495456,
  [('runw',
    '/Users/satodano/Library/Python/3.9/lib/python/site-packages/PyInstaller/bootloader/Darwin-64bit/runw',
    'EXECUTABLE')])

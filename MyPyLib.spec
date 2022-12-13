@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['PyLibViewer.py'],
+    ['MyPyLib.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -26,7 +26,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='PyLibViewer',
+    name='MyPyLib',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -37,7 +37,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['PyLibViewer_icon.icns'],
+    icon=['help_contents.icns'],
 )
 coll = COLLECT(
     exe,
@@ -47,11 +47,11 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='PyLibViewer',
+    name='MyPyLib',
 )
 app = BUNDLE(
     coll,
-    name='PyLibViewer.app',
-    icon='PyLibViewer_icon.icns',
+    name='MyPyLib.app',
+    icon='help_contents.icns',
     bundle_identifier=None,
 )

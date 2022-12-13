@@ -4,13 +4,13 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Resources/PyLibViewer_icon.icns</key>
+		<data>
+		vFc3ohFAJhvDryDcwV3GV6qxJkM=
+		</data>
 		<key>Resources/base_library.zip</key>
 		<data>
-		OAlsBUW6fPX6SJ+IuPTTH/1ca0c=
-		</data>
-		<key>Resources/laybrick.icns</key>
-		<data>
-		/KYMer22TtBIgbvqC/GbXjQifJo=
+		0peOxfbtt0jZVsFiZ2USAvth6BM=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -1136,18 +1136,18 @@
 			<key>requirement</key>
 			<string>cdhash H"b4ac9a5cef9a35d476bb1b373e6b165b2f40b05c" or cdhash H"aa9282fcdfd448cd9a7baf330f6d4a340e623968"</string>
 		</dict>
+		<key>Resources/PyLibViewer_icon.icns</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			UPoz20bHHRB+0To3xuZxfc+gOfZw2QuPqVkebyFc3PY=
+			</data>
+		</dict>
 		<key>Resources/base_library.zip</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			k+eEvLHOyzx9WCJPdsDZ3zXdYyBRHO843AExrBYVkFo=
-			</data>
-		</dict>
-		<key>Resources/laybrick.icns</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			0yjYXJHCWcMTeFcJdpuRv17I2s6K/eNKhrbR0cGsU2M=
+			GZVZAVrhV42kSS5rp28iS9lETnWgjY58mFLWCN63qoM=
 			</data>
 		</dict>
 	</dict>

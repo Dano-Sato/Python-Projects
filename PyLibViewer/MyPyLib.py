@@ -44,7 +44,7 @@ def safeCommand(cmd,timeout):
 
 
 
-#60ms당 한번씩 signal 배출하는 쓰레드
+#30ms당 한번씩 signal 배출하는 쓰레드
 class Updater(QThread):
     update_signal = pyqtSignal()
     def run(self):
@@ -144,38 +144,6 @@ class SearchList(QWidget):
         self.setLayout(self.layout)
         self.listUpdate()
 
-#Test
-
-class XColorDisplay(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.color = None
-
-    def setColor(self, color):
-        self.color = QColor(color)
-        self.update()
-
-    def paintEvent(self, event=None):
-        painter = QPainter(self)
-        if self.color is not None:
-            painter.setBrush(QBrush(self.color))
-            painter.drawRect(self.rect())
-
-    def getColorName(self):
-        return unicode(self.color.name())
-    
-class XGraphicsScene(QGraphicsScene):
-    def __init__(self,x,y,w,h):
-        super().__init__()
-        self.view = QGraphicsView()
-        self.view.setScene(self)
-        self.setSceneRect(x,y,w,h)
-        self.zero = QGraphicsRectItem()
-        self.zero.setPos(0,0)
-        self.addItem(self.zero)
-        self.view.setFocusPolicy(Qt.NoFocus)
-
 
 
 def XButton(buttonName, function):
@@ -208,29 +176,6 @@ def _XBoxLayout(type, components):
     return layout   
 
 
-class Xt():
-    @classmethod
-    def rect(cls,graphicsItem):
-        try:
-            rect = graphicsItem.rect()
-        except:
-            rect = graphicsItem.boundingRect()
-        rect.moveTo(graphicsItem.pos().x(),graphicsItem.pos().y())
-        if graphicsItem.parentItem() != None:
-            rect.moveTo(graphicsItem.pos().x()+graphicsItem.parentItem().rect().x(),graphicsItem.pos().y()+graphicsItem.parentItem().rect().y())
-        return rect
-    
-    @classmethod
-    def showError(cls,errMessage):
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText(errMessage)
-            msg.setWindowTitle("Error")
-            msg.exec_()
-            
-        
-        
 
 class XGraphicsRectItem(QGraphicsRectItem):
     def __init__(self):
@@ -238,10 +183,6 @@ class XGraphicsRectItem(QGraphicsRectItem):
     def setRect(self,x,y,w,h):
         super().setRect(0,0,w,h)
         self.setPos(x,y)
-    def setColor(self,color):
-        self.setBrush(color)
-    def setEdge(self,pen):
-        self.setPen(pen)
     def rect(self):
         rect = super().rect()
         rect.moveTo(self.pos().x(),self.pos().y())

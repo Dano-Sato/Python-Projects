@@ -237,19 +237,20 @@ class App(Genesis):
         #Board 객체들 구성
 
         _width = 600
-        _height = 1200
-        d = 20
+        _height = 1240
+        d = 0
+        n = 25
 
-        self.Todo = Board(QColor(50,25,25))
-        self.Todo.setRect(d,50,_width,_height)
+        self.Todo = Board(QColor(n*2,n,n))
+        self.Todo.setRect(d,0,_width,_height)
         self.Todo.setTitle('Todo')
         
-        self.Ongoing = Board(QColor(25,50,25))
-        self.Ongoing.setRect(2*d+_width,50,_width,_height)
+        self.Ongoing = Board(QColor(n,n*2,n))
+        self.Ongoing.setRect(2*d+_width,0,_width,_height)
         self.Ongoing.setTitle('Ongoing')
 
-        self.Done = Board(QColor(25,25,50))
-        self.Done.setRect(3*d+2*_width,50,_width,_height)
+        self.Done = Board(QColor(n,n,n*2))
+        self.Done.setRect(3*d+2*_width,0,_width,_height)
         self.Done.setTitle('Done')
 
 

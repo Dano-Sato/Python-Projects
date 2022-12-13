@@ -1,11 +1,24 @@
 from MyPyLib import *
 
-class Game(Genesis):
+class Appli(Genesis):
     def initUI(self):
         self.resize(600,600)
         self.setWindowTitle("Test Game")        
+        self.scene = XGraphicsScene(0,0,1200,800)
+        self.testSqr = XGraphicsRectItem()
+        self.testSqr.setRect(30,30,50,50)
+        self.testSqr.setColor(QColor(50,50,50))
+        self.testSqr.setEdge(QPen(Qt.white,10))
+        self.scene.addItem(self.testSqr)
+        self.layout = XVLayout()
+        self.layout.addWidget(self.scene.view)
+        self.setLayout(self.layout)
+        
         self.x=200
         self.y=200
+        
+    def update(self):
+        super().update()
 
     def drawEvent(self, event):
         a = self.drawAction
@@ -31,7 +44,7 @@ class Game(Genesis):
 if __name__ == '__main__':
     
     app = QApplication(sys.argv)
-    mwindow = Game()
+    mwindow = Appli()
     mwindow.show()
     
     app.exec_()

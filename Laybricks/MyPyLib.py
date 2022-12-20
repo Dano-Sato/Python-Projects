@@ -4,7 +4,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui,QtCore,QtWidgets
-import sys, random,time, glob,pickle,os,numpy
+import sys, random,time, glob,pickle,os
+
 from Lib_PyHigh import PythonHighlighter
 
 
@@ -217,6 +218,13 @@ class Xt():
             msg.setInformativeText(errMessage)
             msg.setWindowTitle("Error")
             msg.exec_()
+    @classmethod
+    def norm(cls,vec):
+        result = 0
+        for v in vec:
+            result += (v*v)
+        import math
+        return math.sqrt(result)
         
         
 
@@ -235,7 +243,7 @@ class XGraphicsRectItem(QGraphicsRectItem):
 
     def moveTo(self,x,y):
         vec = [x-self.pos().x(),y-self.pos().y()]
-        n = numpy.linalg.norm(vec)
+        n = Xt.norm(vec)
         if n>10:
             self.setPos(self.pos().x()+vec[0]/2,self.pos().y()+vec[1]/2)
         else:

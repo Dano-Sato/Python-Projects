@@ -4,7 +4,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui,QtCore,QtWidgets
-import sys, random,time, glob,pickle,os,numpy
+import sys, random,time, glob,pickle,os
+from numpy.linalg import norm
 from Lib_PyHigh import PythonHighlighter
 
 
@@ -230,6 +231,7 @@ class Xt():
             msg.exec_()
             
 
+##This is the layout for QGraphicsView, you can swap the view with this
 class XCamera(QVBoxLayout):
     def __init__(self):
         super().__init__()

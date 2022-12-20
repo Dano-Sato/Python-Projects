@@ -240,16 +240,17 @@ class App(Genesis):
         _height = 1240
         d = 0
         n = 25
+        
 
-        self.Todo = Board(QColor(n*2,n,n))
+        self.Todo = Board(QColor(n+35,n-5,15))
         self.Todo.setRect(d,0,_width,_height)
         self.Todo.setTitle('Todo')
         
-        self.Ongoing = Board(QColor(n,n*2,n))
+        self.Ongoing = Board(QColor(n,n+25,n+10))
         self.Ongoing.setRect(2*d+_width,0,_width,_height)
         self.Ongoing.setTitle('Ongoing')
 
-        self.Done = Board(QColor(n,n,n*2))
+        self.Done = Board(QColor(n,n+10,n+25))
         self.Done.setRect(3*d+2*_width,0,_width,_height)
         self.Done.setTitle('Done')
 

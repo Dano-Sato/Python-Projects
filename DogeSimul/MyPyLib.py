@@ -229,6 +229,16 @@ class Xt():
             msg.setWindowTitle("Error")
             msg.exec_()
             
+
+class XCamera(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.view = None
+    def setView(self,_view):
+        if self.view != None:
+            self.view.setParent(None)
+        self.view = _view
+        self.addWidget(self.view)
         
         
 

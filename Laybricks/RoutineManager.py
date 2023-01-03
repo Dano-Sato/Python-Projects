@@ -34,6 +34,8 @@ class RoutineManager(QDialog):
         self.titleEdit = QLineEdit()
         self.titleEdit.textChanged.connect(self.titleUpdate)
         self.textEdit = QPlainTextEdit()
+        self.textEdit.setTabStopWidth(15)
+        self.textChanged = False
         self.textEdit.textChanged.connect(self.textUpdate)
         self.removeButton = QPushButton('Remove Routine')
         self.removeButton.clicked.connect(self.removeRoutine)
@@ -75,6 +77,7 @@ class RoutineManager(QDialog):
             self.selectRoutine()
     def textUpdate(self):
         self.currentRoutine.text = self.textEdit.toPlainText()
+        self.textChanged = True
     def titleUpdate(self):
         self.currentRoutine.title.setText(self.titleEdit.text())
     def selectRoutine(self):

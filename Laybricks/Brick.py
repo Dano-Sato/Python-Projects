@@ -12,7 +12,7 @@ class Brick(XGraphicsRectItem):
         self.title = QGraphicsTextItem(_title)
         self.title.setFont(BrickTitleFont)
         self.title.setParentItem(self)
-        self.text = QGraphicsTextItem(_text)
+        self.text = QGraphicsTextItem(_text.replace('\t','   '))
         self.text.setFont(BrickTextFont)
         self.text.setParentItem(self)
         self.foldButton = QGraphicsTextItem('⬆')

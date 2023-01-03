@@ -3,9 +3,10 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtMultimedia import *
 from PyQt5 import QtGui,QtCore,QtWidgets
 import sys, random,time, glob,pickle,os
-
+import numpy
 from Lib_PyHigh import PythonHighlighter
 
 
@@ -45,7 +46,7 @@ def safeCommand(cmd,timeout):
 
 
 
-#30ms당 한번씩 signal 배출하는 쓰레드
+#60ms당 한번씩 signal 배출하는 쓰레드
 class Updater(QThread):
     update_signal = pyqtSignal()
     def run(self):
@@ -165,6 +166,17 @@ class XColorDisplay(QWidget):
 
     def getColorName(self):
         return unicode(self.color.name())
+    
+class XGraphicsScene(QGraphicsScene):
+    def __init__(self,x,y,w,h):
+        super().__init__()
+        self.view = QGraphicsView()
+        self.view.setScene(self)
+        self.setSceneRect(x,y,w,h)
+        self.zero = QGraphicsRectItem()
+        self.zero.setPos(0,0)
+        self.addItem(self.zero)
+        self.view.setFocusPolicy(Qt.NoFocus)
 
 
 
@@ -219,21 +231,28 @@ class Xt():
             msg.setWindowTitle("Error")
             msg.exec_()
     @classmethod
-    def norm(cls,vec):
-        result = 0
-        for v in vec:
-            result += (v*v)
-        import math
-        return math.sqrt(result)
-    @classmethod
-    def replaceText(cls,textEdit,old,new):
-        if old in textEdit.toPlainText():
-            doc = textEdit.document()
-            cursor = QTextCursor(doc)
-            cursor = doc.find(old,cursor)
-            textEdit.setTextCursor(cursor)
-            textEdit.textCursor().insertText(new)
+    def moveTo(cls,obj,point):
+        x = point.x()
+        y = point.y()
+        vec = [x-obj.pos().x(),y-obj.pos().y()]
+        n = numpy.linalg.norm(vec)
+        if n>10:
+            obj.move(obj.pos().x()+vec[0]/2,obj.pos().y()+vec[1]/2)
+        else:
+            obj.move(x,y)     
+            
 
+##This is the layout for QGraphicsView, you can swap the view with this
+class XCamera(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.view = None
+    def setView(self,_view):
+        if self.view != None:
+            self.view.setParent(None)
+        self.view = _view
+        self.addWidget(self.view)
+        
         
 
 class XGraphicsRectItem(QGraphicsRectItem):
@@ -242,6 +261,10 @@ class XGraphicsRectItem(QGraphicsRectItem):
     def setRect(self,x,y,w,h):
         super().setRect(0,0,w,h)
         self.setPos(x,y)
+    def setColor(self,color):
+        self.setBrush(color)
+    def setEdge(self,pen):
+        self.setPen(pen)
     def rect(self):
         rect = super().rect()
         rect.moveTo(self.pos().x(),self.pos().y())
@@ -251,7 +274,7 @@ class XGraphicsRectItem(QGraphicsRectItem):
 
     def moveTo(self,x,y):
         vec = [x-self.pos().x(),y-self.pos().y()]
-        n = Xt.norm(vec)
+        n = numpy.linalg.norm(vec)
         if n>10:
             self.setPos(self.pos().x()+vec[0]/2,self.pos().y()+vec[1]/2)
         else:

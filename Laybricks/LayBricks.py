@@ -6,6 +6,8 @@ from Brick import *
 
 assessment = ['Did a few😔','Not Enough😢','Normal🙂','Well Done!👍','Excellent!😎']
 
+replacements = {'/v':'✔','- ':'\t● '}
+
 home_path = os.path.expanduser('~')
 directoryName = home_path+"/Library/Application\ Support/LayBricks"
 saveFilePath = (directoryName+'/currentData.laybricks')
@@ -328,7 +330,7 @@ class App(Genesis):
                                
                                 self.colorDisplay.setColor(brick.color)
                                 title = brick.title.toPlainText()
-                                text = brick.text.toPlainText()
+                                text = brick.text.toPlainText().replace('   ','\t')
                                 self.textEdit.clear()
                                 self.textEdit.setCurrentCharFormat(self.titleFormat)
                                 self.textEdit.insertPlainText(title+'\n')
@@ -372,6 +374,7 @@ class App(Genesis):
         self.scale = r
         self.view.setTransform(tr)
         return
+        
     def update(self):
         super().update()
         for board in [self.Todo,self.Ongoing,self.Done]:
@@ -412,7 +415,10 @@ class App(Genesis):
             self.editorFrameMotionTimer-=1
 
         if self.isTextChanged:
-            texts = self.textEdit.toPlainText().replace('\t','    ').split('\n')
+            for k in list(replacements):
+                Xt.replaceText(self.textEdit,k,replacements[k])
+            texts = self.textEdit.toPlainText().replace('\t','   ').split('\n')
+
             #Brick Update
             if self.currentObject != None:
                 if len(texts)>0:
@@ -437,6 +443,10 @@ class App(Genesis):
         if not self.mw.routineManager.isSaved:
             self.mw.routineManager.isSaved = True
             self.isSaved = False
+        if self.mw.routineManager.textChanged:
+            for k in list(replacements):
+                Xt.replaceText(self.mw.routineManager.textEdit,k,replacements[k])
+            self.mw.routineManager.textChanged = False
 
         if not self.isSaved:
             #Save

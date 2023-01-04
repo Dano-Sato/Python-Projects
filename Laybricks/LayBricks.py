@@ -189,7 +189,7 @@ class App(Genesis):
                     Xt.replaceText(textEdit,r,replacements[r])
             textEdit.textChanged.connect(f)
             msg.setLayout(XHLayout(r,XVLayout(1,text,textEdit,1)))
-            msg.setWindowTitle('Brick Editor Tip')
+            msg.setWindowTitle('Brick Editor Tip!')
             msg.exec_()
             
 
@@ -409,7 +409,7 @@ class App(Genesis):
     def resizeEvent(self,event):
         w,h = self.size().width(),self.size().height()
         r_w,r_h = w/self.default_size[0],h/self.default_size[1]
-        r = min(r_w,r_h)
+        r = r_h
         tr = QTransform()
         tr.scale(r,r)
         self.scale = r

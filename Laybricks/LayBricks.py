@@ -6,7 +6,7 @@ from Brick import *
 
 assessment = ['Did a few😔','Not Enough😢','Normal🙂','Well Done!👍','Excellent!😎']
 
-replacements = {'/v':'✔','- ':'\t● '}
+replacements = {'/v':'✔','--- ':'┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅','- ':'\t● '}
 
 home_path = os.path.expanduser('~')
 directoryName = home_path+"/Library/Application\ Support/LayBricks"
@@ -312,6 +312,8 @@ class App(Genesis):
                             if len(board.Bricks)<15:
                                 board.addBrick(self.scene)
                                 self.isSaved = False
+
+                        #브릭 선택
                         for brick in board.Bricks:
                             if brick.rect().contains(pos.x(),pos.y()):
                                 if Xt.rect(brick.foldButton).contains(pos.x(),pos.y()):
@@ -331,6 +333,21 @@ class App(Genesis):
                                 self.colorDisplay.setColor(brick.color)
                                 title = brick.title.toPlainText()
                                 text = brick.text.toPlainText().replace('   ','\t')
+                                '''
+                                ##This code is deprecated, due to the bug in latest MacOS with PyQt5
+                                ##ref is : https://bugreports.qt.io/browse/QTBUG-98093
+                                #자기평가 바 업데이트
+                                accessed = False
+                                for i,a in enumerate(assessment):
+                                    if a[:-1] in text:
+                                        accessed = True
+                                        self.slider.setSliderPosition(i+1)
+                                        self.slider.setValue(i+1)
+                                if not accessed:
+                                    self.slider.setSliderPosition(0)
+                                    self.slider.setValue(0)
+                                '''
+
                                 self.textEdit.clear()
                                 self.textEdit.setCurrentCharFormat(self.titleFormat)
                                 self.textEdit.insertPlainText(title+'\n')
@@ -344,6 +361,7 @@ class App(Genesis):
                                     self.pinButton.setChecked(False)
                                 self.draggedObject=brick
                                 self.draggingOffset = [self.cursorPos().x()-self.draggedObject.rect().x(),self.cursorPos().y()-self.draggedObject.rect().y()]
+
 
                     if not clickedBrick:
                         if self.currentObject != None:

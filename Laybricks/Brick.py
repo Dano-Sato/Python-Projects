@@ -128,6 +128,11 @@ class Board(XGraphicsRectItem):
                 b.pinButton.show()
         except:
             pass
+        try:
+            if data[4]=='⬇':
+                b.fold()
+        except:
+            pass            
         b.setRect(self.pos().x(),self.pos().y(),self.rect().width()-self.delta*2,self.minimal_brick_height)
         b.heightUpdate()
 
@@ -142,7 +147,7 @@ class Board(XGraphicsRectItem):
             pinned = False
             if b.pinButton.isVisible():
                 pinned = True
-            l.append([b.title.toPlainText(),b.text.toPlainText(),b.color,pinned])
+            l.append([b.title.toPlainText(),b.text.toPlainText(),b.color,pinned,b.foldButton.toPlainText()])
         return l
     def dataImport(self,scene,data):
         data.reverse()

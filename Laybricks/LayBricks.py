@@ -174,6 +174,26 @@ class App(Genesis):
             self.currentObject.setBrush(self.currentObject.color) # 배경색 정함
             self.colorDisplay.setColor(color)
             
+    def showEditorTip(self):
+            msg = QDialog()
+            msg.resize(650,450)
+            msg.setWindowModality(Qt.NonModal)
+            r = QLabel()
+            r.setPixmap(QPixmap('Routina_Icon.png').scaledToWidth(300,Qt.SmoothTransformation))
+            text = QLabel("Brick Editor Syntax\n\n/v\t\t->\tcheck Icon(✔)\n- + space\t->\tlist item(●)\n --- + space\t->\tline separator")
+            textEdit = QTextEdit()
+            textEdit.setPlaceholderText('Test in here')
+            textEdit.setTabStopWidth(15)
+            def f():
+                for r in list(replacements):
+                    Xt.replaceText(textEdit,r,replacements[r])
+            textEdit.textChanged.connect(f)
+            msg.setLayout(XHLayout(r,XVLayout(1,text,textEdit,1)))
+            msg.setWindowTitle('Brick Editor Tip')
+            msg.exec_()
+            
+
+            
     def initUI(self):
 
 
@@ -222,7 +242,9 @@ class App(Genesis):
         self.pinButton = QCheckBox()
         self.pinButton.setText('Don\'t remove this')
         self.pinButton.stateChanged.connect(self.pinBrick)
-        self.editorFrame.setLayout(XVLayout(QLabel("Brick Editor"),self.textEdit,self.assessment_label,self.slider,self.colorPicker,self.pinButton,self.removeButton,1))
+        self.editorTipButton = QPushButton('Editor Tip')
+        self.editorTipButton.clicked.connect(self.showEditorTip)
+        self.editorFrame.setLayout(XVLayout(XHLayout(QLabel("Brick Editor"),1,self.editorTipButton),self.textEdit,self.assessment_label,self.slider,self.colorPicker,self.pinButton,self.removeButton,1))
         self.editorFrame.hide()
 
 
@@ -329,6 +351,7 @@ class App(Genesis):
                                 self.currentObject=brick
                                # str = brick.title.toPlainText()+'\n'+brick.text.toPlainText()
                                # self.textEdit.setPlainText(str)
+                               
                                
                                 self.colorDisplay.setColor(brick.color)
                                 title = brick.title.toPlainText()
